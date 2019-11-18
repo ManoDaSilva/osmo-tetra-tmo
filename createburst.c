@@ -247,8 +247,9 @@ int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const ui
 
 int main(int argc, char **argv)
 {
-	uint8_t curburst[255*2];
-	uint8_t outbuf[255*2];
+	static uint8_t *curburst;
+	curburst = malloc(510);
+
 	volatile uint8_t cur_mn = 0;
 	volatile uint8_t cur_fn;
 	volatile uint8_t cur_tn = 1;
@@ -257,8 +258,8 @@ int main(int argc, char **argv)
 		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
 		/*GENERATE THE BURST HERE*/
 		printf("SCDB BURST\n");
-		build_sb(&curburst, cur_mn, cur_fn, cur_tn);
-		printf("OUTPUT: %s\n", osmo_ubit_dump(curburst, 255*2));
+		build_sb(curburst, cur_mn, cur_fn, cur_tn);
+		printf("OUTPUT: %s\n", osmo_ubit_dump(curburst, 510));
 
 		/*
 		If FN = 18 and (MN+TN)*mod4=1 ==> BNCH (gen OK)
