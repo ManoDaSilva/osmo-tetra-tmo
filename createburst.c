@@ -22,7 +22,6 @@
 *
 */
 
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,7 +33,6 @@
 #include <osmocom/core/utils.h>
 #include <osmocom/core/bits.h>
 #include <osmocom/core/bitvec.h>
-
 
 #include "tetra_common.h"
 #include <lower_mac/crc_simple.h>
@@ -55,14 +53,6 @@
 #define swap16(x) ((x)<<8)|((x)>>8)
 
 #define verbose 1
-
-uint32_t offset = 0;
-uint8_t curburst[255*2];
-uint8_t outbuf[255*2*4*18];	
-/**
-uint8_t* curburst = (uint8_t*) malloc(sizeof(uint8_t)*510);
-uint8_t* outbuf = (uint8_t*) malloc(sizeof(uint8_t)*510*4*18);
-*/
 
 static unsigned int num_crc_err;
 
@@ -109,7 +99,6 @@ int build_ndb_schf()
 		get_punctured_rate(TETRA_RCPC_PUNCT_2_3, master, 432, type3);
 		free(ces);
 	}
-	
 
 	/* Run (432,103) block interleaving: type-4 bits */
 	block_interleave(432, 103, type3, type4);
@@ -148,7 +137,7 @@ int build_ndb_schf()
 }
 
 /* Build a full 'Synchronization continuous downlink burst' from SYSINFO-PDU and SYNC-PDU */
-int build_sb(uint8_t *burst_buffer,const uint8_t *mn,const uint8_t *fn,const uint8_t *tn)
+int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const uint8_t tn)
 {
 	uint8_t sb_type2[80];
 	uint8_t sb_master[80*4];
@@ -237,14 +226,13 @@ int build_sb(uint8_t *burst_buffer,const uint8_t *mn,const uint8_t *fn,const uin
 	memcpy(si_type5, si_type4, 216);
 	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(si_type5, 216));
 
-
 	/* Use pdu_acc_ass from pdus.c */
 	acc_pdu();
 	/* Run it through (30,14) RM code: type-2=3=4 bits */
 	bb_rm3014 = tetra_rm3014_compute(*(uint16_t *)pdu_acc_ass);
-		/* convert to big endian */
+	/* convert to big endian */
 	bb_rm3014_be = htonl(bb_rm3014);
-		/* shift two bits left as it is only a 30 bit value */
+	/* shift two bits left as it is only a 30 bit value */
 	bb_rm3014_be <<= 2;
 	osmo_pbit2ubit(bb_type5, (uint8_t *) &bb_rm3014_be, 30);
 	/* Run scrambling (all-zero): type-5 bits */
@@ -253,67 +241,32 @@ int build_sb(uint8_t *burst_buffer,const uint8_t *mn,const uint8_t *fn,const uin
 	/* Finally, hand it into the physical layer */
 	build_sync_c_d_burst(burst_buffer, sb_type5, bb_type5, si_type5);
 
-
-	
 	//printf("Synchronization continuous downlink burst (SCDB): %s\n", osmo_ubit_dump(buf, 255*2));
 	return 0;
 }
 
 int main(int argc, char **argv)
 {
-	uint8_t cur_mn = 0;
-	uint8_t cur_tn = 0;
-	uint8_t cur_fn = 0;
+	uint8_t curburst[255*2];
+	uint8_t outbuf[255*2];
+	volatile uint8_t cur_mn = 0;
+	volatile uint8_t cur_fn;
+	volatile uint8_t cur_tn = 1;
 
-	
+	for (cur_fn = 1; cur_fn <= 18; cur_fn++) {
+		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
+		/*GENERATE THE BURST HERE*/
+		printf("SCDB BURST\n");
+		build_sb(&curburst, cur_mn, cur_fn, cur_tn);
+		printf("OUTPUT: %s\n", osmo_ubit_dump(curburst, 255*2));
 
-
-
-
-
-
-//	for (cur_tn=1; cur_tn<=3 ;++cur_tn){
-//		printf("TN:%d FN:%d MN:%d \n", cur_tn, cur_fn, cur_mn);
-//			/*GENERATE THE BURST HERE*/
-//		printf("SCDB BURST\n");
-//		build_sb(curburst, cur_mn,cur_fn,cur_tn);
-//		//memcpy(outbuf, curburst, 255*2);
-//		offset += 255*2;
-//			/*			
-//			If FN = 18 and (MN+TN)*mod4=1 ==> BNCH (gen OK)
-//			If FN = 18 and (MN+TN)*mod4=3 ==> BSCH (gen OK)
-//			Burst caracteristic: TN, FN, MN, type(CB, LB, LDB, NUB, NCDB, SCDB, NDDB, SDDB), contents
-//			IF SCDB ==> BSCH
-//			Add to output buffer*/
-//	}
-
-	printf("CHECKPOINT 0\n");
-	build_sb(curburst, 1,1,1);
-	printf("CHECKPOINT 1\n");
-	memcpy(outbuf, curburst, 510);
-	printf("CHECKPOINT 2\n");
-	offset += 510;
-
-
-	build_sb(&curburst, 1,1,2);
-	//memcpy(outbuf+offset, curburst, sizeof(curburst)+1);
-
-
-
-
-
-
-
-
-
-
-	printf("OUTPUT: %s\n", osmo_ubit_dump(outbuf, 255*2*4*18));
-
-	/*printf("NCDB BURST\n");
-	printf("INPUT PDU: %s\n", osmo_ubit_dump(pdu_schf, 268));
-	build_ndb_schf();*/
-
-	//printf("total number of CRC Errors: %u\n", num_crc_err);
+		/*
+		If FN = 18 and (MN+TN)*mod4=1 ==> BNCH (gen OK)
+		If FN = 18 and (MN+TN)*mod4=3 ==> BSCH (gen OK)
+		Burst caracteristic: TN, FN, MN, type(CB, LB, LDB, NUB, NCDB, SCDB, NDDB, SDDB), contents
+		IF SCDB ==> BSCH
+		Add to output buffer*/
+	}
 
 	exit(0);
 }

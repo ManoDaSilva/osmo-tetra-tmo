@@ -16,7 +16,6 @@
  *
  */
 
-
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -30,7 +29,7 @@ uint8_t pdu_sysinfo[16];	/* 124 bits */
 uint8_t pdu_acc_ass[2];
 uint8_t pdu_schf[268];
 
-void sync_pdu(const uint8_t *mn, const uint8_t *fn, const uint8_t *tn, const uint8_t *mcc, const uint16_t *mnc)
+void sync_pdu(const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_t mcc, const uint16_t mnc)
 {
 	struct bitvec bv;
 
@@ -54,7 +53,7 @@ void sync_pdu(const uint8_t *mn, const uint8_t *fn, const uint8_t *tn, const uin
 	bitvec_set_uint(&bv, mcc, 10);	/* MCC */
 	bitvec_set_uint(&bv, mnc, 14);	/* MNC */
 	bitvec_set_uint(&bv, 0, 2);	/* Neighbor cell broadcast: not supported */
-	bitvec_set_uint(&bv, 0, 2);	/* Cell service level: unknown */	
+	bitvec_set_uint(&bv, 0, 2);	/* Cell service level: unknown */
 	bitvec_set_bit(&bv, 0);		/* Late entry information */
 	//printf("SYNC PDU: %s\n", osmo_hexdump(pdu_sync, sizeof(pdu_sync)));
 }
@@ -88,8 +87,6 @@ void sysinfo_pdu()
 	bitvec_set_uint(&bv, 0xFFFF, 16);	/* Subscriber Class (18.5.22) */
 	bitvec_set_uint(&bv, 0, 12);	/* BS service details (18.5.2) */
 	//printf("SYSINFO PDU: %s\n", osmo_hexdump(pdu_sysinfo, sizeof(pdu_sysinfo)));
-
-
 }
 
 void acc_pdu(){
@@ -104,5 +101,4 @@ void acc_pdu(){
 	bitvec_set_uint(&bv, 0, 6);
 	bitvec_set_uint(&bv, 0, 6);
 	//printf("ACCESS-ASSIGN PDU: %s\n", osmo_hexdump(pdu_acc_ass, sizeof(pdu_acc_ass)));
-
 }
