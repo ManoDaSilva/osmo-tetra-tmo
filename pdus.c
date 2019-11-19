@@ -29,7 +29,7 @@ uint8_t pdu_sysinfo[16];	/* 124 bits */
 uint8_t pdu_acc_ass[2];
 uint8_t pdu_schf[268];
 
-void sync_pdu(const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_t mcc, const uint16_t mnc)
+void sync_pdu(const uint16_t cc, const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_t mcc, const uint16_t mnc)
 {
 	struct bitvec bv;
 	memset(&bv, 0, sizeof(bv));
@@ -39,7 +39,7 @@ void sync_pdu(const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_
 	//bitvec_set_uint(&bv, 0, 4);	/* alignment */
 	/* According to Table 21.73: SYNC PDU Contents */
 	bitvec_set_uint(&bv, 0, 4);	/* System Code: ETS 300 392-2 ed. 1 */
-	bitvec_set_uint(&bv, 0, 6);	/* Colour Code: Predefined Scrambling */
+	bitvec_set_uint(&bv, cc, 6);	/* Colour Code: Predefined Scrambling */
 	bitvec_set_uint(&bv, tn, 2);	/* Timeslot number*/
 	bitvec_set_uint(&bv, fn, 5);	/* Frame number*/
 	bitvec_set_uint(&bv, mn, 6);	/* Multiframe number */

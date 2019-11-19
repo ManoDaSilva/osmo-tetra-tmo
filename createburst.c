@@ -45,8 +45,9 @@
 #include "pdus.h"
 
 /*Network info*/
-#define MCC 206
-#define MNC 16383
+#define CC      0
+#define MCC     206
+#define MNC     16383
 
 #define swap16(x) ((x)<<8)|((x)>>8)
 
@@ -243,7 +244,7 @@ int main(int argc, char **argv)
 
 	for (cur_fn = 1; cur_fn <= 18; cur_fn++) {
 		/* Create pdu_sync from what we need */
-		sync_pdu(cur_mn, cur_fn, cur_tn, MCC, MNC);
+		sync_pdu(CC, cur_mn, cur_fn, cur_tn, MCC, MNC);
 
 		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
 		/*GENERATE THE BURST HERE*/
