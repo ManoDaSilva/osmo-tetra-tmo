@@ -44,8 +44,8 @@
 #include <phy/tetra_burst.h>
 #include "pdus.h"
 
-/*Network info*/
-#define CC      0
+/* Network info */
+#define CC      1
 #define MCC     206
 #define MNC     16383
 
