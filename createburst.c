@@ -225,14 +225,18 @@ int build_sb(uint8_t *buf)
 	return 0;
 }
 
+#define BLEN	510 // burst length
+#define HFLEN	(BLEN * 18) // hyperframe length
+
 int main(int argc, char **argv)
 {
-	static uint8_t *curburst;
-	curburst = malloc(510);
+	uint8_t burst[BLEN];
+	uint8_t *bp;
+	bp = burst;
 
-	volatile uint8_t cur_mn = 0;
-	volatile uint8_t cur_fn;
-	volatile uint8_t cur_tn = 1;
+	uint8_t cur_mn = 1;
+	uint8_t cur_fn;
+	uint8_t cur_tn = 1;
 
 	sysinfo_pdu();
 	acc_pdu();
@@ -244,8 +248,8 @@ int main(int argc, char **argv)
 		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
 		/*GENERATE THE BURST HERE*/
 		printf("SCDB BURST\n");
-		build_sb(curburst);
-		printf("OUTPUT: %s\n", osmo_ubit_dump(curburst, 510));
+		build_sb(bp);
+		printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
 
 		/*
 		If FN = 18 and (MN+TN)*mod4=1 ==> BNCH (gen OK)
