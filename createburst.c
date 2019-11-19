@@ -77,8 +77,6 @@ int build_ndb_schf()
 	memset(type2, 0, sizeof(type2));
 	cur = type2;
 
-
-
 	/* Use pdu_schf from pdus.c: type-1 bits */
 	cur += osmo_pbit2ubit(type2, pdu_schf, 268);
 
@@ -100,8 +98,6 @@ int build_ndb_schf()
 
 	/* Run (432,103) block interleaving: type-4 bits */
 	block_interleave(432, 103, type3, type4);
-
-
 
 	/* Run scrambling (all-zero): type-5 bits */
 	memcpy(type5, type4, 432);
@@ -125,7 +121,6 @@ int build_ndb_schf()
 
 	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
 	//printf("Scrambled block 2 bits (SCH/F): %s\n", osmo_ubit_dump(type5+216, 216));
-
 
 	/* Finally, hand it into the physical layer */
 	build_norm_c_d_burst(burst, type5, bb_type5, type5+216, 0);
@@ -240,11 +235,12 @@ int main(int argc, char **argv)
 	volatile uint8_t cur_fn;
 	volatile uint8_t cur_tn = 1;
 
+	sysinfo_pdu();
+	acc_pdu();
+
 	for (cur_fn = 1; cur_fn <= 18; cur_fn++) {
 		/* Create pdu_sync from what we need */
 		sync_pdu(cur_mn, cur_fn, cur_tn, MCC, MNC);
-		sysinfo_pdu();
-		acc_pdu();
 
 		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
 		/*GENERATE THE BURST HERE*/
