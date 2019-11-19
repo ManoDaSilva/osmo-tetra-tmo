@@ -48,8 +48,6 @@
 #define MCC 206
 #define MNC 16383
 
-
-
 #define swap16(x) ((x)<<8)|((x)>>8)
 
 #define verbose 1
@@ -137,7 +135,7 @@ int build_ndb_schf()
 }
 
 /* Build a full 'Synchronization continuous downlink burst' from SYSINFO-PDU and SYNC-PDU */
-int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const uint8_t tn)
+int build_sb(uint8_t *buf)
 {
 	uint8_t sb_type2[80];
 	uint8_t sb_master[80*4];
@@ -152,7 +150,6 @@ int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const ui
 	uint8_t si_type5[216];
 
 	uint8_t bb_type5[30];
-	uint8_t burst[255*2];
 	uint16_t crc;
 	uint8_t *cur;
 	uint32_t bb_rm3014, bb_rm3014_be;
@@ -160,9 +157,7 @@ int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const ui
 	memset(sb_type2, 0, sizeof(sb_type2));
 	cur = sb_type2;
 
-	/*Create pdu_sync from what we need*/
-	sync_pdu(mn, fn, tn, MCC, MNC);
-	/* Use pdu_sync from testpdu.c */
+	/* Use pdu_sync from pdus.c */
 	cur += osmo_pbit2ubit(sb_type2, pdu_sync, 60);
 
 	crc = ~crc16_ccitt_bits(sb_type2, 60);
@@ -171,7 +166,6 @@ int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const ui
 
 	/* Append 4 tail bits: type-2 bits */
 	cur += 4;
-
 
 	/* Run rate 2/3 RCPC code: type-3 bits*/
 	{
@@ -190,13 +184,7 @@ int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const ui
 	tetra_scramb_bits(SCRAMB_INIT, sb_type5, 120);
 	//printf("Scrambled synchronization block 1 bits (BSCH): %s\n", osmo_ubit_dump(sb_type5, 120));
 
-	/* Decode the sync burst and check crc */
-
-	//decode_sb1(sb_type5);
-
 	/* Use pdu_sysinfo from pdus.c */
-
-	sysinfo_pdu();
 	memset(si_type2, 0, sizeof(si_type2));
 	cur = si_type2;
 	cur += osmo_pbit2ubit(si_type2, pdu_sysinfo, 124);
@@ -208,7 +196,6 @@ int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const ui
 
 	/* Append 4 tail bits: type-2 bits */
 	cur += 4;
-
 
 	/* Run rate 2/3 RCPC code: type-3 bits */
 	{
@@ -227,7 +214,6 @@ int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const ui
 	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(si_type5, 216));
 
 	/* Use pdu_acc_ass from pdus.c */
-	acc_pdu();
 	/* Run it through (30,14) RM code: type-2=3=4 bits */
 	bb_rm3014 = tetra_rm3014_compute(*(uint16_t *)pdu_acc_ass);
 	/* convert to big endian */
@@ -239,7 +225,7 @@ int build_sb(uint8_t *burst_buffer, const uint8_t mn, const uint8_t fn, const ui
 	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
 
 	/* Finally, hand it into the physical layer */
-	build_sync_c_d_burst(burst_buffer, sb_type5, bb_type5, si_type5);
+	build_sync_c_d_burst(buf, sb_type5, bb_type5, si_type5);
 
 	//printf("Synchronization continuous downlink burst (SCDB): %s\n", osmo_ubit_dump(buf, 255*2));
 	return 0;
@@ -255,10 +241,15 @@ int main(int argc, char **argv)
 	volatile uint8_t cur_tn = 1;
 
 	for (cur_fn = 1; cur_fn <= 18; cur_fn++) {
+		/* Create pdu_sync from what we need */
+		sync_pdu(cur_mn, cur_fn, cur_tn, MCC, MNC);
+		sysinfo_pdu();
+		acc_pdu();
+
 		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
 		/*GENERATE THE BURST HERE*/
 		printf("SCDB BURST\n");
-		build_sb(curburst, cur_mn, cur_fn, cur_tn);
+		build_sb(curburst);
 		printf("OUTPUT: %s\n", osmo_ubit_dump(curburst, 510));
 
 		/*

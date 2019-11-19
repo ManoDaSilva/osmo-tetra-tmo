@@ -57,6 +57,7 @@ void sync_pdu(const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_
 	bitvec_set_bit(&bv, 0);		/* Late entry information */
 	//printf("SYNC PDU: %s\n", osmo_hexdump(pdu_sync, sizeof(pdu_sync)));
 }
+
 void sysinfo_pdu()
 {
 	struct bitvec bv;
