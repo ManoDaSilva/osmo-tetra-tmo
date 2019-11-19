@@ -138,7 +138,7 @@ int build_sb(uint8_t *buf)
 	uint8_t sb_type5[120];
 
 	uint8_t si_type2[140];
-	uint8_t si_master[255];
+	uint8_t si_master[1024];
 	uint8_t si_type3[216];
 	uint8_t si_type4[216];
 	uint8_t si_type5[216];
