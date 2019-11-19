@@ -230,7 +230,8 @@ int build_sb(uint8_t *buf)
 }
 
 #define BLEN	510 // burst length
-#define HFLEN	(BLEN * 18) // hyperframe length
+#define MFLEN	(BLEN * 18) // multiframe length
+#define HFLEN	(MFLEN * 60) // hyperframe length
 
 int main(int argc, char **argv)
 {
@@ -245,7 +246,7 @@ int main(int argc, char **argv)
 	sysinfo_pdu();
 	acc_pdu();
 
-	for (cur_fn = 1; cur_fn <= 18; cur_fn++) {
+	for (cur_tn = 1; cur_tn <= 4; cur_tn++) {
 		/* Create pdu_sync from what we need */
 		sync_pdu(CC, cur_mn, cur_fn, cur_tn, MCC, MNC);
 
