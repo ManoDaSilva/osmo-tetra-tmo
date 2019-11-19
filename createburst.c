@@ -194,7 +194,7 @@ int build_sb(uint8_t *buf)
 	{
 		struct conv_enc_state *ces = calloc(1, sizeof(*ces));
 		conv_enc_init(ces);
-		conv_enc_input(ces, sb_type2, 144, si_master);
+		conv_enc_input(ces, si_type2, 144, si_master);
 		get_punctured_rate(TETRA_RCPC_PUNCT_2_3, si_master, 216, si_type3);
 		free(ces);
 	}
