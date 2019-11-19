@@ -113,7 +113,7 @@ static const struct phase2bits phase2bits[] = {
 	[PHASE( 1)]	= {  1, {0, 0} },
 	[PHASE( 3)]	= {  3, {1, 0} },
 };
-	
+
 static int32_t calc_phase_adj(int32_t phase)
 {
 	int32_t adj_phase = -(phase % 8);
@@ -143,8 +143,8 @@ int32_t sum_up_phase(const uint8_t *bits, unsigned int sym_count)
 		sum_phase += bits2phase[sym_in];
 	}
 
-	printf("phase sum over %u symbols: %dpi/4, mod 8 = %dpi/4, wrap = %dpi/4\n",
-		sym_count, sum_phase, sum_phase % 8, calc_phase_adj(sum_phase));
+	//printf("phase sum over %u symbols: %dpi/4, mod 8 = %dpi/4, wrap = %dpi/4\n",
+	//	sym_count, sum_phase, sum_phase % 8, calc_phase_adj(sum_phase));
 	return sum_phase;
 }
 
