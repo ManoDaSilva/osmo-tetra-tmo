@@ -148,6 +148,8 @@ int build_sb(uint8_t *buf)
 	uint8_t *cur;
 	uint32_t bb_rm3014, bb_rm3014_be;
 
+	uint32_t scramb_init = tetra_scramb_get_init(MCC, MNC, CC);
+
 	memset(sb_type2, 0, sizeof(sb_type2));
 	cur = sb_type2;
 
@@ -205,7 +207,7 @@ int build_sb(uint8_t *buf)
 
 	/* Run scrambling (all-zero): type-5 bits */
 	memcpy(si_type5, si_type4, 216);
-	tetra_scramb_bits(tetra_scramb_get_init(MCC, MNC, 0), si_type5, 216);
+	tetra_scramb_bits(scramb_init, si_type5, 216);
 	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(si_type5, 216));
 
 	/* Use pdu_acc_ass from pdus.c */
@@ -217,6 +219,7 @@ int build_sb(uint8_t *buf)
 	bb_rm3014_be <<= 2;
 	osmo_pbit2ubit(bb_type5, (uint8_t *) &bb_rm3014_be, 30);
 	/* Run scrambling (all-zero): type-5 bits */
+	tetra_scramb_bits(scramb_init, bb_type5, 30);
 	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
 
 	/* Finally, hand it into the physical layer */
