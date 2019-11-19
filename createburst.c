@@ -204,6 +204,7 @@ int build_sb(uint8_t *buf)
 
 	/* Run scrambling (all-zero): type-5 bits */
 	memcpy(si_type5, si_type4, 216);
+	tetra_scramb_bits(tetra_scramb_get_init(MCC, MNC, 0), si_type5, 216);
 	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(si_type5, 216));
 
 	/* Use pdu_acc_ass from pdus.c */
