@@ -32,7 +32,6 @@ uint8_t pdu_schf[268];
 void sync_pdu(const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_t mcc, const uint16_t mnc)
 {
 	struct bitvec bv;
-
 	memset(&bv, 0, sizeof(bv));
 	bv.data = pdu_sync;
 	bv.data_len = sizeof(pdu_sync);
@@ -90,7 +89,8 @@ void sysinfo_pdu()
 	//printf("SYSINFO PDU: %s\n", osmo_hexdump(pdu_sysinfo, sizeof(pdu_sysinfo)));
 }
 
-void acc_pdu(){
+void acc_pdu()
+{
 	struct bitvec bv;
 	memset(&bv, 0, sizeof(bv));
 	bv.data = pdu_acc_ass;
