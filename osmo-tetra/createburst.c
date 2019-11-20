@@ -47,7 +47,7 @@
 /* Network info */
 #define CC      1
 #define MCC     206
-#define MNC     16383
+#define MNC     1000
 
 #define swap16(x) ((x)<<8)|((x)>>8)
 
@@ -252,7 +252,7 @@ int main(int argc, char **argv)
 
 		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
 		/* GENERATE THE BURST HERE */
-		printf("SCDB BURST\n");
+		//printf("SCDB BURST\n");
 		build_sb(bp);
 		printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
 

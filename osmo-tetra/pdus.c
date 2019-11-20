@@ -66,7 +66,7 @@ void sysinfo_pdu()
 	// According to Table 21.4.4.1: SYSINFO PDU contents
 	bitvec_set_uint(&bv, 2, 2);	// MAC PDU type: Broadcast
 	bitvec_set_uint(&bv, 0, 2);	// SYSINFO PDU
-	bitvec_set_uint(&bv, ((438750-400000)/25), 12);	// Main carrier
+	bitvec_set_uint(&bv, ((438275-400000)/25), 12);	// Main carrier
 	bitvec_set_uint(&bv, 4, 4);	// Frequency band: 390/400
 	bitvec_set_uint(&bv, 0, 2);	// Offset: No offset
 	bitvec_set_uint(&bv, 7, 3);	// Duplex Spacing (Table 2 on ETSI TS 100 392-15): outside the standards
