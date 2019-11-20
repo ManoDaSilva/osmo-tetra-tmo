@@ -11,6 +11,6 @@ uint32_t tetra_rm3014_compute(const uint16_t in);
  * an error in the input. In the future this should correct
  * the error or such.
  */
-int tetra_rm3013_decode(const uint32_t inp, uint16_t *out);
+int tetra_rm3014_decode(const uint32_t inp, uint16_t *out);
 
 #endif
