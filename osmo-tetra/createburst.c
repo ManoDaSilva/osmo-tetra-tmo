@@ -59,7 +59,7 @@ void tp_sap_udata_ind(enum tp_sap_data_type type, const uint8_t *bits, unsigned 
 }
 
 /* Build a full 'Normal continuous downlink burst' from SYSINFO-PDU and SYNC-PDU, with a SCH/F logical channel */
-int build_ndb_schf()
+void build_ndb_schf()
 {
 	/* input: 268 type-1 bits */
 	uint8_t type2[284];
@@ -124,12 +124,10 @@ int build_ndb_schf()
 	/* Finally, hand it into the physical layer */
 	build_norm_c_d_burst(burst, type5, bb_type5, type5+216, 0);
 	printf("Normal continuous downlink burst (NCDB): %s\n", osmo_ubit_dump(burst, 255*2));
-
-	return 0;
 }
 
 /* Build a full 'Synchronization continuous downlink burst' from SYSINFO-PDU and SYNC-PDU */
-int build_sb(uint8_t *buf)
+void build_sb(uint8_t *buf)
 {
 	uint8_t sb_type2[80];
 	uint8_t sb_master[80*4];
@@ -181,9 +179,10 @@ int build_sb(uint8_t *buf)
 	tetra_scramb_bits(SCRAMB_INIT, sb_type5, 120);
 	//printf("Scrambled synchronization block 1 bits (BSCH): %s\n", osmo_ubit_dump(sb_type5, 120));
 
-	/* Use pdu_sysinfo from pdus.c */
 	memset(si_type2, 0, sizeof(si_type2));
 	cur = si_type2;
+
+	/* Use pdu_sysinfo from pdus.c */
 	cur += osmo_pbit2ubit(si_type2, pdu_sysinfo, 124);
 
 	/* Run it through CRC16-CCITT */
@@ -229,7 +228,6 @@ int build_sb(uint8_t *buf)
 	build_sync_c_d_burst(buf, sb_type5, bb_type5, si_type5);
 
 	//printf("Synchronization continuous downlink burst (SCDB): %s\n", osmo_ubit_dump(buf, 255*2));
-	return 0;
 }
 
 #define BLEN	510 // burst length
