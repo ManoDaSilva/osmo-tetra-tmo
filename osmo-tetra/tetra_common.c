@@ -59,7 +59,7 @@ uint32_t tetra_dl_carrier_hz(uint8_t band, uint16_t carrier, uint8_t offset)
 }
 
 /* TS 100 392-15, Table 2 */
-static const int16_t tetra_duplex_spacing[8][16] = { /* values are in kHz */
+static const int32_t tetra_duplex_spacing[8][16] = { /* values are in kHz */
 	[0] = { -1, 1600, 10000, 10000, 10000, 10000, 10000, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
 	[1] = { -1, 4500, -1, 36000, 7000, -1, -1, -1, 45000, 45000, -1, -1, -1, -1, -1, -1 },
 	[2] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -75,7 +75,7 @@ uint32_t tetra_ul_carrier_hz(uint8_t band, uint16_t carrier, uint8_t offset,
 {
 	uint32_t freq = tetra_dl_carrier_hz(band, carrier, offset);
 
-	uint32_t duplex_spacing = tetra_duplex_spacing[duplex & 7][band & 15];
+	int32_t duplex_spacing = tetra_duplex_spacing[duplex & 7][band & 15];
 
 	if (duplex_spacing < 0) /* reserved for future standardization */
 	    return 0;
