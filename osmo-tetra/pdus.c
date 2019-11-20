@@ -69,7 +69,7 @@ void sysinfo_pdu()
 	bitvec_set_uint(&bv, ((438750-400000)/25), 12);	// Main carrier
 	bitvec_set_uint(&bv, 4, 4);	// Frequency band: 390/400
 	bitvec_set_uint(&bv, 0, 2);	// Offset: No offset
-	bitvec_set_uint(&bv, 3, 3);	// Duplex Spacing (Table 2 on ETSI TS 100 392-15): set to 8MHz
+	bitvec_set_uint(&bv, 7, 3);	// Duplex Spacing (Table 2 on ETSI TS 100 392-15): outside the standards
 	bitvec_set_bit(&bv, 0);		// Normal operation
 	bitvec_set_uint(&bv, 0, 2);	// Number of CSCH: none
 	bitvec_set_uint(&bv, 1, 3);	// MS_TXPWR_MAX_CELL: 15 dBm
