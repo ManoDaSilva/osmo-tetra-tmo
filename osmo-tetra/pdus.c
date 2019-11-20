@@ -36,24 +36,23 @@ void sync_pdu(const uint16_t cc, const uint8_t mn, const uint8_t fn, const uint8
 	bv.data = pdu_sync;
 	bv.data_len = sizeof(pdu_sync);
 
-	//bitvec_set_uint(&bv, 0, 4);	/* alignment */
-	/* According to Table 21.73: SYNC PDU Contents */
-	bitvec_set_uint(&bv, 0, 4);	/* System Code: ETS 300 392-2 ed. 1 */
-	bitvec_set_uint(&bv, cc, 6);	/* Colour Code: Predefined Scrambling */
-	bitvec_set_uint(&bv, tn, 2);	/* Timeslot number*/
-	bitvec_set_uint(&bv, fn, 5);	/* Frame number*/
-	bitvec_set_uint(&bv, mn, 6);	/* Multiframe number */
-	bitvec_set_uint(&bv, 0, 2);	/* Sharing mode: continuous transmission */
-	bitvec_set_uint(&bv, 0, 3);	/* TS reserved frames: 1 frame per 2 mfrm */
-	bitvec_set_bit(&bv, 0);		/* No DTX */
-	bitvec_set_bit(&bv, 0);		/* No Frame 18 extension */
-	bitvec_set_bit(&bv, 0);		/* Reserved */
-	/* As defined in Table 18.4.2.1: D-MLE-SYNC */
-	bitvec_set_uint(&bv, mcc, 10);	/* MCC */
-	bitvec_set_uint(&bv, mnc, 14);	/* MNC */
-	bitvec_set_uint(&bv, 0, 2);	/* Neighbor cell broadcast: not supported */
-	bitvec_set_uint(&bv, 0, 2);	/* Cell service level: unknown */
-	bitvec_set_bit(&bv, 0);		/* Late entry information */
+	// According to Table 21.73: SYNC PDU Contents
+	bitvec_set_uint(&bv, 0, 4);	// System Code: ETS 300 392-2 ed. 1
+	bitvec_set_uint(&bv, cc, 6);	// Colour Code: Predefined Scrambling
+	bitvec_set_uint(&bv, tn, 2);	// Timeslot number
+	bitvec_set_uint(&bv, fn, 5);	// Frame number
+	bitvec_set_uint(&bv, mn, 6);	// Multiframe number
+	bitvec_set_uint(&bv, 0, 2);	// Sharing mode: continuous transmission
+	bitvec_set_uint(&bv, 0, 3);	// TS reserved frames: 1 frame per 2 mfrm
+	bitvec_set_bit(&bv, 0);		// No DTX
+	bitvec_set_bit(&bv, 0);		// No Frame 18 extension
+	bitvec_set_bit(&bv, 0);		// Reserved
+	// As defined in Table 18.4.2.1: D-MLE-SYNC
+	bitvec_set_uint(&bv, mcc, 10);	// MCC
+	bitvec_set_uint(&bv, mnc, 14);	// MNC
+	bitvec_set_uint(&bv, 0, 2);	// Neighbor cell broadcast: not supported
+	bitvec_set_uint(&bv, 0, 2);	// Cell service level: unknown
+	bitvec_set_bit(&bv, 0);		// Late entry information
 	//printf("SYNC PDU: %s\n", osmo_hexdump(pdu_sync, sizeof(pdu_sync)));
 }
 
@@ -64,7 +63,6 @@ void sysinfo_pdu()
 	bv.data = pdu_sysinfo;
 	bv.data_len = sizeof(pdu_sysinfo);
 
-	//bitvec_set_uint(&bv, 0, 4);	// alignment
 	// According to Table 21.4.4.1: SYSINFO PDU contents
 	bitvec_set_uint(&bv, 2, 2);	// MAC PDU type: Broadcast
 	bitvec_set_uint(&bv, 0, 2);	// SYSINFO PDU
@@ -111,9 +109,9 @@ void acc_pdu()
 	bv.data = pdu_acc_ass;
 	bv.data_len = sizeof(pdu_acc_ass);
 
-	bitvec_set_uint(&bv, 0, 2);	/* alignment */
-	/* According to Table 21.27: ACCESS-ASSIGN PDU */
-	bitvec_set_uint(&bv, 0, 2);	/* DL/UL: common only */
+	bitvec_set_uint(&bv, 0, 2);	// alignment -> why?
+	// According to Table 21.27: ACCESS-ASSIGN PDU
+	bitvec_set_uint(&bv, 0, 2);	// DL/UL: common only
 	bitvec_set_uint(&bv, 0, 6);
 	bitvec_set_uint(&bv, 0, 6);
 	//printf("ACCESS-ASSIGN PDU: %s\n", osmo_hexdump(pdu_acc_ass, sizeof(pdu_acc_ass)));
