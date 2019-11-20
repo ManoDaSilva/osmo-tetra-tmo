@@ -59,7 +59,7 @@ void tp_sap_udata_ind(enum tp_sap_data_type type, const uint8_t *bits, unsigned 
 }
 
 /* Build a full 'Normal continuous downlink burst' from SYSINFO-PDU and SYNC-PDU, with a SCH/F logical channel */
-void build_ndb_schf()
+void build_ncdb_schf()
 {
 	/* input: 268 type-1 bits */
 	uint8_t type2[284];
@@ -72,6 +72,8 @@ void build_ndb_schf()
 	uint16_t crc;
 	uint8_t *cur;
 	uint32_t bb_rm3014, bb_rm3014_be;
+
+	uint32_t scramb_init = tetra_scramb_get_init(MCC, MNC, CC);
 
 	memset(type2, 0, sizeof(type2));
 	cur = type2;
@@ -98,36 +100,36 @@ void build_ndb_schf()
 	/* Run (432,103) block interleaving: type-4 bits */
 	block_interleave(432, 103, type3, type4);
 
-	/* Run scrambling (all-zero): type-5 bits */
 	memcpy(type5, type4, 432);
-	tetra_scramb_bits(SCRAMB_INIT, type5, 432);
 
+	/* Run scrambling (all-zero): type-5 bits */
+	tetra_scramb_bits(SCRAMB_INIT, type5, 432);
 	//printf("Scrambled block 1 bits (SCH/F): %s\n", osmo_ubit_dump(type5, 216));
 
-	//decode_schf(type5);
-
 	/* Use pdu_acc_ass from pdus.c */
-	acc_pdu();
 	/* Run it through (30,14) RM code: type-2=3=4 bits */
 	bb_rm3014 = tetra_rm3014_compute(*(uint16_t *)pdu_acc_ass);
 
-		/* convert to big endian */
+	/* convert to big endian */
 	bb_rm3014_be = htonl(bb_rm3014);
-		/* shift two bits left as it is only a 30 bit value */
+	/* shift two bits left as it is only a 30 bit value */
 	bb_rm3014_be <<= 2;
 	osmo_pbit2ubit(bb_type5, (uint8_t *) &bb_rm3014_be, 30);
+
 	/* Run scrambling (all-zero): type-5 bits */
+	tetra_scramb_bits(scramb_init, bb_type5, 30);
 
 	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
 	//printf("Scrambled block 2 bits (SCH/F): %s\n", osmo_ubit_dump(type5+216, 216));
 
 	/* Finally, hand it into the physical layer */
 	build_norm_c_d_burst(burst, type5, bb_type5, type5+216, 0);
-	printf("Normal continuous downlink burst (NCDB): %s\n", osmo_ubit_dump(burst, 255*2));
+
+	//printf("Normal continuous downlink burst (NCDB): %s\n", osmo_ubit_dump(burst, 255*2));
 }
 
 /* Build a full 'Synchronization continuous downlink burst' from SYSINFO-PDU and SYNC-PDU */
-void build_sb(uint8_t *buf)
+void build_scdb(uint8_t *buf)
 {
 	uint8_t sb_type2[80];
 	uint8_t sb_master[80*4];
@@ -136,7 +138,7 @@ void build_sb(uint8_t *buf)
 	uint8_t sb_type5[120];
 
 	uint8_t si_type2[140];
-	uint8_t si_master[1024];
+	uint8_t si_master[216*4];
 	uint8_t si_type3[216];
 	uint8_t si_type4[216];
 	uint8_t si_type5[216];
@@ -254,7 +256,7 @@ int main(int argc, char **argv)
 		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
 		/* GENERATE THE BURST HERE */
 		//printf("SCDB BURST\n");
-		build_sb(bp);
+		build_scdb(bp);
 		printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
 
 		/*
