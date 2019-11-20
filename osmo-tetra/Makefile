@@ -29,4 +29,4 @@ tunctl: tunctl.o
 createburst: createburst.o pdus.o libosmo-tetra-phy.a libosmo-tetra-mac.a
 
 clean:
-	@rm -f tunctl float_to_bits crc_test tetra-rx conv_enc_test testenc *.o phy/*.o lower_mac/*.o *.a
+	@rm -f tunctl float_to_bits crc_test tetra-rx conv_enc_test testenc createburst *.o phy/*.o lower_mac/*.o *.a
