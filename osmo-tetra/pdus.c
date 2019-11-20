@@ -64,40 +64,43 @@ void sysinfo_pdu()
 	bv.data = pdu_sysinfo;
 	bv.data_len = sizeof(pdu_sysinfo);
 
-	//bitvec_set_uint(&bv, 0, 4);	/* alignment */
-	/* According to Table 21.4.4.1: SYSINFO PDU contents */
-	bitvec_set_uint(&bv, 2, 2);	/* MAC PDU type: Broadcast */
-	bitvec_set_uint(&bv, 0, 2);	/* SYSINFO PDU */
-	bitvec_set_uint(&bv, ((438750-400000)/25), 12);	/* Main carrier */
-	bitvec_set_uint(&bv, 4, 4);	/* Frequency band: 390/400 */
-	bitvec_set_uint(&bv, 0, 2);	/* Offset: No offset */
-	bitvec_set_uint(&bv, 7, 3);	/* Duplex Spacing: */
-	bitvec_set_bit(&bv, 0);		/* Normal operation */
-	bitvec_set_uint(&bv, 0, 2);	/* Number of CSCH: none */
-	bitvec_set_uint(&bv, 1, 3);	/* MS_TXPWR_MAX_CELL: 15 dBm */
-	bitvec_set_uint(&bv, 0, 4);	/* RXLEV_ACCESS_MIN: -125dBm */
-	bitvec_set_uint(&bv, 0, 4);	/* ACCESS_PARAMETER: -53 dBm */
-	bitvec_set_uint(&bv, 0, 4);	/* RADIO_DOWNLINK_TIMEOUT: Disable */
-	bitvec_set_bit(&bv, 0);		/* Hyperframe number follows */
-	bitvec_set_uint(&bv, 0, 16);	/* Hyperframe number */
-	bitvec_set_uint(&bv, 0, 2);	/* Optional field: Even multiframe */
-	bitvec_set_uint(&bv, 0, 20);	/* TS_COMMON_FRAMES for even mframe */
-	/* TM-SDU (42 bit), Section 18.4.2.2, Table 18.15 */
-	bitvec_set_uint(&bv, 0, 14);	/* Location Area (18.5.9) */
-	bitvec_set_uint(&bv, 0xFFFF, 16);	/* Subscriber Class (18.5.22) */
-	/* BS service details (12 bits) */
-	bitvec_set_bit(&bv, 1);	        /* Registration mandatory on this cell */
-	bitvec_set_bit(&bv, 1);	        /* De-registration mandatory on this cell */
-	bitvec_set_bit(&bv, 0);	        /* Priority cell */
-	bitvec_set_bit(&bv, 0);	        /* Minimum mode service */
-	bitvec_set_bit(&bv, 0);	        /* Migration */
-	bitvec_set_bit(&bv, 1);	        /* System wide services */
-	bitvec_set_bit(&bv, 1);	        /* TETRA voice service */
-	bitvec_set_bit(&bv, 1);	        /* Circuit mode data service */
-	bitvec_set_bit(&bv, 0);	        /* Reserved */
-	bitvec_set_bit(&bv, 1);	        /* SNDCP service */
-	bitvec_set_bit(&bv, 0);	        /* Air interface encryption service */
-	bitvec_set_bit(&bv, 1);	        /* Advanced link supported */
+	//bitvec_set_uint(&bv, 0, 4);	// alignment
+	// According to Table 21.4.4.1: SYSINFO PDU contents
+	bitvec_set_uint(&bv, 2, 2);	// MAC PDU type: Broadcast
+	bitvec_set_uint(&bv, 0, 2);	// SYSINFO PDU
+	bitvec_set_uint(&bv, ((438750-400000)/25), 12);	// Main carrier
+	bitvec_set_uint(&bv, 4, 4);	// Frequency band: 390/400
+	bitvec_set_uint(&bv, 0, 2);	// Offset: No offset
+	bitvec_set_uint(&bv, 7, 3);	// Duplex Spacing
+	bitvec_set_bit(&bv, 0);		// Normal operation
+	bitvec_set_uint(&bv, 0, 2);	// Number of CSCH: none
+	bitvec_set_uint(&bv, 1, 3);	// MS_TXPWR_MAX_CELL: 15 dBm
+	bitvec_set_uint(&bv, 0, 4);	// RXLEV_ACCESS_MIN: -125dBm
+	bitvec_set_uint(&bv, 0, 4);	// ACCESS_PARAMETER: -53 dBm
+	bitvec_set_uint(&bv, 0, 4);	// RADIO_DOWNLINK_TIMEOUT: Disable
+	bitvec_set_bit(&bv, 0);		// Hyperframe number follows
+	bitvec_set_uint(&bv, 0, 16);	// Hyperframe number
+	bitvec_set_uint(&bv, 0, 2);	// Optional field: Even multiframe
+	bitvec_set_uint(&bv, 0, 20);	// TS_COMMON_FRAMES for even mframe
+	// TM-SDU (42 bit), Section 18.4.2.2, Table 18.15
+	bitvec_set_uint(&bv, 0, 14);	// Location Area (18.5.9)
+	bitvec_set_uint(&bv, 0xFFFF, 16);	// Subscriber Class (18.5.22)
+	// BS service details (12 bits)
+	/*
+	bitvec_set_bit(&bv, 1);	        // Registration mandatory on this cell
+	bitvec_set_bit(&bv, 1);	        // De-registration mandatory on this cell
+	bitvec_set_bit(&bv, 0);	        // Priority cell
+	bitvec_set_bit(&bv, 0);	        // Minimum mode service
+	bitvec_set_bit(&bv, 0);	        // Migration
+	bitvec_set_bit(&bv, 1);	        // System wide services
+	bitvec_set_bit(&bv, 1);	        // TETRA voice service
+	bitvec_set_bit(&bv, 1);	        // Circuit mode data service
+	bitvec_set_bit(&bv, 0);	        // Reserved
+	bitvec_set_bit(&bv, 1);	        // SNDCP service
+	bitvec_set_bit(&bv, 0);	        // Air interface encryption service
+	bitvec_set_bit(&bv, 1);	        // Advanced link supported
+	*/
+	bitvec_set_uint(&bv, 0xC75, 12);	// same as above
 	//printf("SYSINFO PDU: %s\n", osmo_hexdump(pdu_sysinfo, sizeof(pdu_sysinfo)));
 }
 
