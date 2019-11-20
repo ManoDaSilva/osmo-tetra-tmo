@@ -175,8 +175,9 @@ int build_sb(uint8_t *buf)
 	/* Run (120,11) block interleaving: type-4 bits */
 	block_interleave(120, 11, sb_type3, sb_type4);
 
-	/* Run scrambling (all-zero): type-5 bits */
 	memcpy(sb_type5, sb_type4, 120);
+
+	/* Run scrambling (all-zero): type-5 bits */
 	tetra_scramb_bits(SCRAMB_INIT, sb_type5, 120);
 	//printf("Scrambled synchronization block 1 bits (BSCH): %s\n", osmo_ubit_dump(sb_type5, 120));
 
@@ -205,8 +206,9 @@ int build_sb(uint8_t *buf)
 	/* Run (216,101) block interleaving: type-4 bits */
 	block_interleave(216, 101, si_type3, si_type4);
 
-	/* Run scrambling (all-zero): type-5 bits */
 	memcpy(si_type5, si_type4, 216);
+
+	/* Run scrambling (all-zero): type-5 bits */
 	tetra_scramb_bits(scramb_init, si_type5, 216);
 	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(si_type5, 216));
 
@@ -218,6 +220,7 @@ int build_sb(uint8_t *buf)
 	/* shift two bits left as it is only a 30 bit value */
 	bb_rm3014_be <<= 2;
 	osmo_pbit2ubit(bb_type5, (uint8_t *) &bb_rm3014_be, 30);
+
 	/* Run scrambling (all-zero): type-5 bits */
 	tetra_scramb_bits(scramb_init, bb_type5, 30);
 	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
@@ -240,18 +243,17 @@ int main(int argc, char **argv)
 	bp = burst;
 
 	uint8_t cur_mn = 1;
-	uint8_t cur_fn;
-	uint8_t cur_tn = 1;
+	uint8_t cur_fn = 1;
 
 	sysinfo_pdu();
 	acc_pdu();
 
-	for (cur_tn = 1; cur_tn <= 4; cur_tn++) {
+	for (uint8_t cur_tn = 1; cur_tn <= 4; cur_tn++) {
 		/* Create pdu_sync from what we need */
 		sync_pdu(CC, cur_mn, cur_fn, cur_tn, MCC, MNC);
 
 		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
-		/*GENERATE THE BURST HERE*/
+		/* GENERATE THE BURST HERE */
 		printf("SCDB BURST\n");
 		build_sb(bp);
 		printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
@@ -261,7 +263,8 @@ int main(int argc, char **argv)
 		If FN = 18 and (MN+TN)*mod4=3 ==> BSCH (gen OK)
 		Burst caracteristic: TN, FN, MN, type(CB, LB, LDB, NUB, NCDB, SCDB, NDDB, SDDB), contents
 		IF SCDB ==> BSCH
-		Add to output buffer*/
+		Add to output buffer
+		*/
 	}
 
 	exit(0);
