@@ -243,6 +243,7 @@ int main(int argc, char **argv)
 	uint8_t cur_mn = 1;
 	uint8_t cur_fn = 1;
 
+	tetra_rm3014_init();
 	sysinfo_pdu();
 	acc_pdu();
 
