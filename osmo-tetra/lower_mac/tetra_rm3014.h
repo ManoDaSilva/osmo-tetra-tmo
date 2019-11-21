@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-void tetra_rm3014_init(void);
+void tetra_rm3014_init();
 uint32_t tetra_rm3014_compute(const uint16_t in);
 
 /**

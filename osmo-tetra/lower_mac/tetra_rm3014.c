@@ -56,7 +56,7 @@ static uint32_t shift_bits_together(const uint8_t *bits, int len)
 	return ret;
 }
 
-void tetra_rm3014_init(void)
+void tetra_rm3014_init()
 {
 	int i;
 	uint32_t val;
@@ -67,7 +67,7 @@ void tetra_rm3014_init(void)
 		/* lower 16 bits from rm_30_14_gen */
 		val |= shift_bits_together(rm_30_14_gen[i], 16);
 		rm_30_14_rows[i] = val;
-		printf("rm_30_14_rows[%u] = 0x%08x\n", i, val);
+		//printf("rm_30_14_rows[%u] = 0x%08x\n", i, val);
 	}
 }
 
