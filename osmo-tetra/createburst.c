@@ -268,7 +268,7 @@ int main(int argc, char **argv)
 				cur_fn = 1;
 				if (++cur_mn > 60) {
 					cur_mn = 1;
-					sysinfo_pdu(cur_hn++);
+					sysinfo_pdu(++cur_hn);
 				}
 			}
 		}
