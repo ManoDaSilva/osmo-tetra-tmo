@@ -132,5 +132,5 @@ void acc_pdu_18()
 	bitvec_set_uint(&bv, 0, 6);	// Access field 1 (not used)
 	bitvec_set_uint(&bv, 0, 6);	// Access field 2 (not used)
 
-	//printf("ACCESS-ASSIGN PDU: %s\n", osmo_hexdump(pdu_acc_ass, sizeof(pdu_acc_ass)));
+	//printf("ACCESS-ASSIGN PDU: %s\n", osmo_hexdump(pdu_acc_ass_18, sizeof(pdu_acc_ass_18)));
 }
