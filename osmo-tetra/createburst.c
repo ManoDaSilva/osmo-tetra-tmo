@@ -61,7 +61,7 @@ void tp_sap_udata_ind(enum tp_sap_data_type type, const uint8_t *bits, unsigned 
 }
 
 /* Build a full 'Normal continuous downlink burst' from SYSINFO-PDU and SYNC-PDU, with a SCH/F logical channel */
-void build_ncdb_schf()
+void build_ncdb_schf(const uint8_t fn)
 {
 	/* input: 268 type-1 bits */
 	uint8_t type2[284];
@@ -108,8 +108,8 @@ void build_ncdb_schf()
 	tetra_scramb_bits(SCRAMB_INIT, type5, 432);
 	//printf("Scrambled block 1 bits (SCH/F): %s\n", osmo_ubit_dump(type5, 216));
 
-	/* Use pdu_acc_ass from pdus.c */
-	uint8_t *bb_type1 = (uint8_t *)pdu_acc_ass; // ACCESS-ASSIGN
+	/* Use pdu_acc_ass/pdu_acc_ass_18 from pdus.c */
+	uint8_t *bb_type1 = (uint8_t *)(fn < 18 ? pdu_acc_ass : pdu_acc_ass_18); // ACCESS-ASSIGN
 	/* Run it through (30,14) RM code: type-2=3=4 bits */
 	bb_rm3014 = tetra_rm3014_compute(*(bb_type1) << 8 | *(bb_type1 + 1));
 	/* convert to big endian */
