@@ -27,6 +27,7 @@
 uint8_t pdu_sync[8];		/* 60 bits */
 uint8_t pdu_sysinfo[16];	/* 124 bits */
 uint8_t pdu_acc_ass[2];
+uint8_t pdu_acc_ass_18[2];
 uint8_t pdu_schf[268];
 
 void sync_pdu(const uint16_t cc, const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_t mcc, const uint16_t mnc)
@@ -43,8 +44,8 @@ void sync_pdu(const uint16_t cc, const uint8_t mn, const uint8_t fn, const uint8
 	bitvec_set_uint(&bv, fn, 5);	// Frame number
 	bitvec_set_uint(&bv, mn, 6);	// Multiframe number
 	bitvec_set_uint(&bv, 0, 2);	// Sharing mode: continuous transmission
-	bitvec_set_uint(&bv, 0, 3);	// TS reserved frames: 1 frame per 2 mfrm
-	bitvec_set_bit(&bv, 0);		// No DTX
+	bitvec_set_uint(&bv, 0, 3);	// TS reserved frames: 1 frame reserved per 2 multiframes
+	bitvec_set_bit(&bv, 0);		// U-plane DTX: Discontinuous U-plane transmission is not allowed
 	bitvec_set_bit(&bv, 0);		// No Frame 18 extension
 	bitvec_set_bit(&bv, 0);		// Reserved
 	// As defined in Table 18.4.2.1: D-MLE-SYNC
@@ -56,7 +57,7 @@ void sync_pdu(const uint16_t cc, const uint8_t mn, const uint8_t fn, const uint8
 	//printf("SYNC PDU: %s\n", osmo_hexdump(pdu_sync, sizeof(pdu_sync)));
 }
 
-void sysinfo_pdu()
+void sysinfo_pdu(const uint16_t hn)
 {
 	struct bitvec bv;
 	memset(&bv, 0, sizeof(bv));
@@ -77,18 +78,18 @@ void sysinfo_pdu()
 	bitvec_set_uint(&bv, 0, 4);	// ACCESS_PARAMETER: -53 dBm
 	bitvec_set_uint(&bv, 0, 4);	// RADIO_DOWNLINK_TIMEOUT: Disable
 	bitvec_set_bit(&bv, 0);		// Hyperframe number follows
-	bitvec_set_uint(&bv, 0, 16);	// Hyperframe number
+	bitvec_set_uint(&bv, hn, 16);	// Hyperframe number
 	bitvec_set_uint(&bv, 0, 2);	// Optional field: Even multiframe
 	bitvec_set_uint(&bv, 0, 20);	// TS_COMMON_FRAMES for even mframe
 	// TM-SDU (42 bit), Section 18.4.2.2, Table 18.15
 	bitvec_set_uint(&bv, 0, 14);	// Location Area (18.5.9)
-	bitvec_set_uint(&bv, 0xFFFF, 16);	// Subscriber Class (18.5.22)
+	bitvec_set_uint(&bv, 0, 16);	// Subscriber Class (18.5.22)
 	// BS service details (12 bits)
 	/*
 	bitvec_set_bit(&bv, 1);	        // Registration mandatory on this cell
 	bitvec_set_bit(&bv, 1);	        // De-registration mandatory on this cell
 	bitvec_set_bit(&bv, 0);	        // Priority cell
-	bitvec_set_bit(&bv, 0);	        // Minimum mode service
+	bitvec_set_bit(&bv, 1);	        // Minimum mode service
 	bitvec_set_bit(&bv, 0);	        // Migration
 	bitvec_set_bit(&bv, 1);	        // System wide services
 	bitvec_set_bit(&bv, 1);	        // TETRA voice service
@@ -98,10 +99,11 @@ void sysinfo_pdu()
 	bitvec_set_bit(&bv, 0);	        // Air interface encryption service
 	bitvec_set_bit(&bv, 1);	        // Advanced link supported
 	*/
-	bitvec_set_uint(&bv, 0xC75, 12);	// same as above
+	bitvec_set_uint(&bv, 0xd75, 12);	// same as above
 	//printf("SYSINFO PDU: %s\n", osmo_hexdump(pdu_sysinfo, sizeof(pdu_sysinfo)));
 }
 
+/* ACCESS-ASSIGN PDU contents for frame 1 to 17 */
 void acc_pdu()
 {
 	struct bitvec bv;
@@ -109,10 +111,26 @@ void acc_pdu()
 	bv.data = pdu_acc_ass;
 	bv.data_len = sizeof(pdu_acc_ass);
 
-	bitvec_set_uint(&bv, 0, 2);	// alignment -> why?
-	// According to Table 21.27: ACCESS-ASSIGN PDU
+	bitvec_set_uint(&bv, 0, 2);	// alignment (<<2)
+	bitvec_set_uint(&bv, 3, 2);	// DL/UL: defined by field1/2
+	bitvec_set_uint(&bv, 0, 6);	// Access field 1: Unallocated
+	bitvec_set_uint(&bv, 0, 6);	// Access field 2: Unallocated
+
+	//printf("ACCESS-ASSIGN PDU: %s\n", osmo_hexdump(pdu_acc_ass, sizeof(pdu_acc_ass)));
+}
+
+/* ACCESS-ASSIGN PDU contents for frame 18 */
+void acc_pdu_18()
+{
+	struct bitvec bv;
+	memset(&bv, 0, sizeof(bv));
+	bv.data = pdu_acc_ass_18;
+	bv.data_len = sizeof(pdu_acc_ass_18);
+
+	bitvec_set_uint(&bv, 0, 2);	// alignment (<<2)
 	bitvec_set_uint(&bv, 0, 2);	// DL/UL: common only
-	bitvec_set_uint(&bv, 0, 6);
-	bitvec_set_uint(&bv, 0, 6);
+	bitvec_set_uint(&bv, 0, 6);	// Access field 1 (not used)
+	bitvec_set_uint(&bv, 0, 6);	// Access field 2 (not used)
+
 	//printf("ACCESS-ASSIGN PDU: %s\n", osmo_hexdump(pdu_acc_ass, sizeof(pdu_acc_ass)));
 }
