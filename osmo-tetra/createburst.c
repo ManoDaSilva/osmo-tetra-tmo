@@ -268,7 +268,8 @@ int main(int argc, char **argv)
 				cur_fn = 1;
 				if (++cur_mn > 60) {
 					cur_mn = 1;
-					sysinfo_pdu(++cur_hn);
+					if (!++cur_hn) cur_hn = 1; // catch overflow
+					sysinfo_pdu(cur_hn);
 				}
 			}
 		}
