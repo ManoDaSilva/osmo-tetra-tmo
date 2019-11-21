@@ -83,7 +83,7 @@ void sysinfo_pdu(const uint16_t hn)
 	bitvec_set_uint(&bv, 0, 20);	// TS_COMMON_FRAMES for even mframe
 	// TM-SDU (42 bit), Section 18.4.2.2, Table 18.15
 	bitvec_set_uint(&bv, 0, 14);	// Location Area (18.5.9)
-	bitvec_set_uint(&bv, 0, 16);	// Subscriber Class (18.5.22)
+	bitvec_set_uint(&bv, 0xFFFF, 16);	// Subscriber Class (18.5.22)
 	// BS service details (12 bits)
 	/*
 	bitvec_set_bit(&bv, 1);	        // Registration mandatory on this cell
