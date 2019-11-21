@@ -44,6 +44,8 @@
 #include <phy/tetra_burst.h>
 #include "pdus.h"
 
+#define BLEN 510 // burst length
+
 /* Network info */
 #define CC      1
 #define MCC     206
@@ -107,9 +109,9 @@ void build_ncdb_schf()
 	//printf("Scrambled block 1 bits (SCH/F): %s\n", osmo_ubit_dump(type5, 216));
 
 	/* Use pdu_acc_ass from pdus.c */
+	uint8_t *bb_type1 = (uint8_t *)pdu_acc_ass; // ACCESS-ASSIGN
 	/* Run it through (30,14) RM code: type-2=3=4 bits */
-	bb_rm3014 = tetra_rm3014_compute(*(uint16_t *)pdu_acc_ass);
-
+	bb_rm3014 = tetra_rm3014_compute(*(bb_type1) << 8 | *(bb_type1 + 1));
 	/* convert to big endian */
 	bb_rm3014_be = htonl(bb_rm3014);
 	/* shift two bits left as it is only a 30 bit value */
@@ -129,7 +131,7 @@ void build_ncdb_schf()
 }
 
 /* Build a full 'Synchronization continuous downlink burst' from SYSINFO-PDU and SYNC-PDU */
-void build_scdb(uint8_t *buf)
+void build_scdb(uint8_t *buf, const uint8_t fn)
 {
 	uint8_t sb_type2[80];
 	uint8_t sb_master[80*4];
@@ -213,9 +215,10 @@ void build_scdb(uint8_t *buf)
 	tetra_scramb_bits(scramb_init, si_type5, 216);
 	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(si_type5, 216));
 
-	/* Use pdu_acc_ass from pdus.c */
+	/* Use pdu_acc_ass/pdu_acc_ass_18 from pdus.c */
+	uint8_t *bb_type1 = (uint8_t *)(fn < 18 ? pdu_acc_ass : pdu_acc_ass_18); // ACCESS-ASSIGN
 	/* Run it through (30,14) RM code: type-2=3=4 bits */
-	bb_rm3014 = tetra_rm3014_compute(*(uint16_t *)pdu_acc_ass);
+	bb_rm3014 = tetra_rm3014_compute(*(bb_type1) << 8 | *(bb_type1 + 1));
 	/* convert to big endian */
 	bb_rm3014_be = htonl(bb_rm3014);
 	/* shift two bits left as it is only a 30 bit value */
@@ -232,32 +235,43 @@ void build_scdb(uint8_t *buf)
 	//printf("Synchronization continuous downlink burst (SCDB): %s\n", osmo_ubit_dump(buf, 255*2));
 }
 
-#define BLEN	510 // burst length
-#define MFLEN	(BLEN * 18) // multiframe length
-#define HFLEN	(MFLEN * 60) // hyperframe length
-
 int main(int argc, char **argv)
 {
 	uint8_t burst[BLEN];
 	uint8_t *bp;
 	bp = burst;
 
-	uint8_t cur_mn = 1;
-	uint8_t cur_fn = 1;
+	uint8_t cur_tn = 0; // timeslot
+	uint8_t cur_fn = 1; // frame
+	uint8_t cur_mn = 1; // multiframe
+	uint16_t cur_hn = 1; // hyperframe
 
 	tetra_rm3014_init();
-	sysinfo_pdu();
+	sysinfo_pdu(cur_hn);
 	acc_pdu();
+	acc_pdu_18();
 
-	for (uint8_t cur_tn = 1; cur_tn <= 4; cur_tn++) {
+	do {
 		/* Create pdu_sync from what we need */
 		sync_pdu(CC, cur_mn, cur_fn, cur_tn, MCC, MNC);
 
-		printf("TN:%d FN:%d MN:%d\n", cur_tn, cur_fn, cur_mn);
+		//printf("%02u/%02u/%02u Hyperframe %05u\n", cur_mn, cur_fn, cur_tn, cur_hn);
 		/* GENERATE THE BURST HERE */
 		//printf("SCDB BURST\n");
-		build_scdb(bp);
-		printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
+		build_scdb(bp, cur_fn);
+		//printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
+		printf("%s", osmo_ubit_dump(burst, BLEN));
+
+		if (++cur_tn > 3) {
+			cur_tn = 0;
+			if (++cur_fn > 18) {
+				cur_fn = 1;
+				if (++cur_mn > 60) {
+					cur_mn = 1;
+					sysinfo_pdu(cur_hn++);
+				}
+			}
+		}
 
 		/*
 		If FN = 18 and (MN+TN)*mod4=1 ==> BNCH (gen OK)
@@ -266,7 +280,8 @@ int main(int argc, char **argv)
 		IF SCDB ==> BSCH
 		Add to output buffer
 		*/
-	}
+
+	} while (cur_hn < 2);
 
 	exit(0);
 }
