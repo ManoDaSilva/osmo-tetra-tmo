@@ -120,6 +120,7 @@ void acc_pdu()
 }
 
 /* ACCESS-ASSIGN PDU contents for frame 18 */
+/* Table 21.83: ACCESS-ASSIGN PDU contents for frame 18 */
 void acc_pdu_18()
 {
 	struct bitvec bv;
@@ -127,10 +128,17 @@ void acc_pdu_18()
 	bv.data = pdu_acc_ass_18;
 	bv.data_len = sizeof(pdu_acc_ass_18);
 
+	/*
 	bitvec_set_uint(&bv, 0, 2);	// alignment (<<2)
 	bitvec_set_uint(&bv, 0, 2);	// DL/UL: common only
 	bitvec_set_uint(&bv, 0, 6);	// Access field 1 (not used)
 	bitvec_set_uint(&bv, 0, 6);	// Access field 2 (not used)
+	*/
+
+	bitvec_set_uint(&bv, 0, 2);	// alignment (<<2)
+	bitvec_set_uint(&bv, 1, 2);	// Uplink access rights: common and assigned
+	bitvec_set_uint(&bv, 0, 6);	// Access field 1
+	bitvec_set_uint(&bv, 0, 6);	// Access field 2
 
 	//printf("ACCESS-ASSIGN PDU: %s\n", osmo_hexdump(pdu_acc_ass_18, sizeof(pdu_acc_ass_18)));
 }
