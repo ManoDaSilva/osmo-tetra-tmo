@@ -61,7 +61,7 @@ void tp_sap_udata_ind(enum tp_sap_data_type type, const uint8_t *bits, unsigned 
 }
 
 /* Build a full 'Normal continuous downlink burst' from SYSINFO-PDU and SYNC-PDU, with a SCH/F logical channel */
-void build_ncdb_schf(const uint8_t fn)
+void build_ncdb_schf(uint8_t *buf, const uint8_t fn)
 {
 	/* input: 268 type-1 bits */
 	uint8_t type2[284];
@@ -125,7 +125,7 @@ void build_ncdb_schf(const uint8_t fn)
 	//printf("Scrambled block 2 bits (SCH/F): %s\n", osmo_ubit_dump(type5+216, 216));
 
 	/* Finally, hand it into the physical layer */
-	build_norm_c_d_burst(burst, type5, bb_type5, type5+216, 0);
+	build_norm_c_d_burst(buf, type5, bb_type5, type5+216, 0);
 
 	//printf("Normal continuous downlink burst (NCDB): %s\n", osmo_ubit_dump(burst, 255*2));
 }
