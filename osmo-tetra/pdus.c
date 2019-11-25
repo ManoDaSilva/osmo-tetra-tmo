@@ -136,7 +136,7 @@ void acc_pdu_18()
 	*/
 
 	bitvec_set_uint(&bv, 0, 2);	// alignment (<<2)
-	bitvec_set_uint(&bv, 0, 2);	// Uplink access rights: common and assigned
+	bitvec_set_uint(&bv, 0, 2);	// Uplink access rights: common
 	bitvec_set_uint(&bv, 1, 6);	// Access field 1
 	bitvec_set_uint(&bv, 0, 6);	// Access field 2
 
