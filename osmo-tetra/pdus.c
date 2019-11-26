@@ -31,7 +31,7 @@ uint8_t pdu_acc_ass[2];
 uint8_t pdu_acc_ass_18[2];
 uint8_t pdu_schf[268];
 
-void sync_pdu(const uint16_t cc, const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_t mcc, const uint16_t mnc)
+void sync_pdu(uint16_t cc, uint8_t mn, uint8_t fn, uint8_t tn, uint8_t mcc, uint16_t mnc)
 {
 	struct bitvec bv;
 	memset(&bv, 0, sizeof(bv));
@@ -58,7 +58,7 @@ void sync_pdu(const uint16_t cc, const uint8_t mn, const uint8_t fn, const uint8
 	//printf("SYNC PDU: %s\n", osmo_hexdump(pdu_sync, sizeof(pdu_sync)));
 }
 
-void sysinfo_pdu(const uint16_t hn)
+void sysinfo_pdu(uint16_t hn)
 {
 	struct bitvec bv;
 	memset(&bv, 0, sizeof(bv));
@@ -122,17 +122,20 @@ void mac_data_pdu()
 }
 
 /* ACCESS-ASSIGN PDU contents for frame 1 to 17 */
-void acc_pdu()
+void acc_pdu(uint8_t af1, uint8_t af2)
 {
 	struct bitvec bv;
 	memset(&bv, 0, sizeof(bv));
 	bv.data = pdu_acc_ass;
 	bv.data_len = sizeof(pdu_acc_ass);
 
+	uint8_t du = 3;
+	if (af1 && af2) du = 1;
+
 	bitvec_set_uint(&bv, 0, 2);	// alignment (<<2)
-	bitvec_set_uint(&bv, 3, 2);	// DL/UL: defined by field1/2
-	bitvec_set_uint(&bv, 0, 6);	// Access field 1: Unallocated
-	bitvec_set_uint(&bv, 0, 6);	// Access field 2: Unallocated
+	bitvec_set_uint(&bv, du, 2);	// DL/UL: defined by field1/2
+	bitvec_set_uint(&bv, af1, 6);	// Access field 1: Unallocated
+	bitvec_set_uint(&bv, af2, 6);	// Access field 2: Unallocated
 
 	//printf("ACCESS-ASSIGN PDU: %s\n", osmo_hexdump(pdu_acc_ass, sizeof(pdu_acc_ass)));
 }

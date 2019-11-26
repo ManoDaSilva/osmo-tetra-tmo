@@ -288,7 +288,6 @@ int main(int argc, char **argv)
 	tetra_rm3014_init();
 	sysinfo_pdu(cur_hn);
 	mac_data_pdu();
-	acc_pdu();
 	acc_pdu_18();
 
 	do {
@@ -298,8 +297,16 @@ int main(int argc, char **argv)
 		//printf("%02u/%02u/%02u Hyperframe %05u\n", cur_mn, cur_fn, cur_tn, cur_hn);
 		/* GENERATE THE BURST HERE */
 		//printf("SCDB BURST\n");
-		if (cur_tn < 3 || cur_fn == 18) build_scdb(bp, cur_fn);
-		else build_ncdb(bp, cur_fn);
+		if (cur_tn < 3 || cur_fn == 18)
+		{
+			acc_pdu(0, 0);
+			build_scdb(bp, cur_fn);
+		}
+		else
+		{
+			acc_pdu(9, 9);
+			build_ncdb(bp, cur_fn);
+		}
 		//printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
 		printf("%s", osmo_ubit_dump(burst, BLEN));
 
