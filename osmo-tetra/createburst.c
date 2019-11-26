@@ -62,7 +62,7 @@ void tp_sap_udata_ind(enum tp_sap_data_type type, const uint8_t *bits, unsigned 
 
 /* Build a full 'Normal continuous downlink burst'
  * from MAC-DATA PDU in SCH/HD and SYSINFO PDU in BNCH */
-void build_ncdb(uint8_t *buf, const uint8_t fn)
+void build_ncdb(uint8_t *buf)
 {
 	uint8_t sb1_type2[144];
 	uint8_t sb1_master[216*4];
@@ -148,8 +148,8 @@ void build_ncdb(uint8_t *buf, const uint8_t fn)
 	tetra_scramb_bits(scramb_init, sb2_type5, 216);
 	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(sb2_type5, 216));
 
-	// Use pdu_acc_ass/pdu_acc_ass_18 from pdus.c
-	uint8_t *bb_type1 = (uint8_t *)(fn < 18 ? pdu_acc_ass : pdu_acc_ass_18); // ACCESS-ASSIGN
+	// Use pdu_acc_ass from pdus.c
+	uint8_t *bb_type1 = (uint8_t *)pdu_acc_ass; // ACCESS-ASSIGN
 	// Run it through (30,14) RM code: type-2=3=4 bits
 	bb_rm3014 = tetra_rm3014_compute(*(bb_type1) << 8 | *(bb_type1 + 1));
 	// convert to big endian
@@ -305,7 +305,7 @@ int main(int argc, char **argv)
 		else
 		{
 			acc_pdu(9, 9);
-			build_ncdb(bp, cur_fn);
+			build_ncdb(bp);
 		}
 		//printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
 		printf("%s", osmo_ubit_dump(burst, BLEN));
