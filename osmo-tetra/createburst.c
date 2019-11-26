@@ -298,7 +298,7 @@ int main(int argc, char **argv)
 		//printf("%02u/%02u/%02u Hyperframe %05u\n", cur_mn, cur_fn, cur_tn, cur_hn);
 		/* GENERATE THE BURST HERE */
 		//printf("SCDB BURST\n");
-		if (cur_tn < 3) build_scdb(bp, cur_fn);
+		if (cur_tn < 3 || cur_fn == 18) build_scdb(bp, cur_fn);
 		else build_ncdb(bp, cur_fn);
 		//printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
 		printf("%s", osmo_ubit_dump(burst, BLEN));
