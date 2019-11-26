@@ -113,8 +113,8 @@ void build_ncdb(uint8_t *buf, const uint8_t fn)
 	memcpy(sb1_type5, sb1_type4, 216);
 
 	// Run scrambling (all-zero): type-5 bits
-	tetra_scramb_bits(SCRAMB_INIT, sb1_type5, 216);
-	//printf("Scrambled block 1 bits (MAC-DATA PDU): %s\n", osmo_ubit_dump(sb1_type5, 216));
+	tetra_scramb_bits(scramb_init, sb1_type5, 216);
+	//printf("Scrambled block 1 bits (SCH/HD): %s\n", osmo_ubit_dump(sb1_type5, 216));
 
 	memset(sb2_type2, 0, sizeof(sb2_type2));
 	cur = sb2_type2;
@@ -145,7 +145,7 @@ void build_ncdb(uint8_t *buf, const uint8_t fn)
 	memcpy(sb2_type5, sb2_type4, 216);
 
 	// Run scrambling (all-zero): type-5 bits
-	tetra_scramb_bits(SCRAMB_INIT, sb2_type5, 216);
+	tetra_scramb_bits(scramb_init, sb2_type5, 216);
 	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(sb2_type5, 216));
 
 	// Use pdu_acc_ass/pdu_acc_ass_18 from pdus.c
@@ -159,12 +159,12 @@ void build_ncdb(uint8_t *buf, const uint8_t fn)
 	osmo_pbit2ubit(bb_type5, (uint8_t *) &bb_rm3014_be, 30);
 
 	// Run scrambling (all-zero): type-5 bits
-	tetra_scramb_bits(SCRAMB_INIT, bb_type5, 30);
+	tetra_scramb_bits(scramb_init, bb_type5, 30);
 
 	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
 
 	// Finally, hand it into the physical layer
-	build_norm_c_d_burst(buf, sb1_type5, bb_type5, sb2_type5, 0);
+	build_norm_c_d_burst(buf, sb1_type5, bb_type5, sb2_type5, 1);
 
 	//printf("Normal continuous downlink burst (NCDB): %s\n", osmo_ubit_dump(buf, BLEN));
 }
