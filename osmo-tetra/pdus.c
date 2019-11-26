@@ -29,6 +29,7 @@ uint8_t pdu_sysinfo[16];	/* 124 bits */
 uint8_t pdu_acc_ass[2];
 uint8_t pdu_acc_ass_18[2];
 uint8_t pdu_schf[268];
+uint8_t pdu_null[124];
 
 void sync_pdu(const uint16_t cc, const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_t mcc, const uint16_t mnc)
 {
@@ -101,6 +102,18 @@ void sysinfo_pdu(const uint16_t hn)
 	*/
 	bitvec_set_uint(&bv, 0xd75, 12);	// same as above
 	//printf("SYSINFO PDU: %s\n", osmo_hexdump(pdu_sysinfo, sizeof(pdu_sysinfo)));
+}
+
+void null_pdu(){ //Empty PDU
+	struct bitvec bv;
+	memset(&bv, 0, sizeof(bv));
+	bv.data = pdu_null;
+	bv.data_len = sizeof(pdu_null);
+
+	bitvec_set_uint(&bv, 0, 11);
+	bitvec_set_uint(&bv, 1, 1);	
+	bitvec_set_uint(&bv, 0, 4);
+	bitvec_set_uint(&bv, 1, 1);	
 }
 
 /* ACCESS-ASSIGN PDU contents for frame 1 to 17 */
