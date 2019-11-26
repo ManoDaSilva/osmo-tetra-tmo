@@ -64,13 +64,13 @@ void tp_sap_udata_ind(enum tp_sap_data_type type, const uint8_t *bits, unsigned 
  * from MAC-DATA PDU in SCH/HD and SYSINFO PDU in BNCH */
 void build_ncdb(uint8_t *buf, const uint8_t fn)
 {
-	uint8_t sb1_type2[140];
+	uint8_t sb1_type2[144];
 	uint8_t sb1_master[216*4];
 	uint8_t sb1_type3[216];
 	uint8_t sb1_type4[216];
 	uint8_t sb1_type5[216];
 
-	uint8_t sb2_type2[140];
+	uint8_t sb2_type2[144];
 	uint8_t sb2_master[216*4];
 	uint8_t sb2_type3[216];
 	uint8_t sb2_type4[216];
@@ -178,7 +178,7 @@ void build_scdb(uint8_t *buf, const uint8_t fn)
 	uint8_t sb_type4[120];
 	uint8_t sb_type5[120];
 
-	uint8_t si_type2[140];
+	uint8_t si_type2[144];
 	uint8_t si_master[216*4];
 	uint8_t si_type3[216];
 	uint8_t si_type4[216];
