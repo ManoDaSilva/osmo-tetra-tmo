@@ -26,10 +26,10 @@
 
 uint8_t pdu_sync[8];		/* 60 bits */
 uint8_t pdu_sysinfo[16];	/* 124 bits */
+uint8_t pdu_mac_data[16];       /* 124 bits */
 uint8_t pdu_acc_ass[2];
 uint8_t pdu_acc_ass_18[2];
 uint8_t pdu_schf[268];
-uint8_t pdu_null[124];
 
 void sync_pdu(const uint16_t cc, const uint8_t mn, const uint8_t fn, const uint8_t tn, const uint8_t mcc, const uint16_t mnc)
 {
@@ -104,16 +104,21 @@ void sysinfo_pdu(const uint16_t hn)
 	//printf("SYSINFO PDU: %s\n", osmo_hexdump(pdu_sysinfo, sizeof(pdu_sysinfo)));
 }
 
-void null_pdu(){ //Empty PDU
+/* MAC-DATA PDU */
+void mac_data_pdu()
+{
 	struct bitvec bv;
 	memset(&bv, 0, sizeof(bv));
-	bv.data = pdu_null;
-	bv.data_len = sizeof(pdu_null);
+	bv.data = pdu_mac_data;
+	bv.data_len = sizeof(pdu_mac_data);
 
-	bitvec_set_uint(&bv, 0, 11);
-	bitvec_set_uint(&bv, 1, 1);	
-	bitvec_set_uint(&bv, 0, 4);
-	bitvec_set_uint(&bv, 1, 1);	
+	bitvec_set_uint(&bv, 0, 2);		// PDU type: MAC-DATA PDU
+	bitvec_set_bit(&bv, 0);			// Fill bit indication: No fill bit present
+	bitvec_set_bit(&bv, 0);			// Encrypted flag: Not encrypted
+	bitvec_set_uint(&bv, 0, 2);		// Address type
+	bitvec_set_uint(&bv, 0x42000, 24);	// Address
+
+	//printf("MAC-DATA PDU: %s\n", osmo_hexdump(pdu_mac_data, sizeof(pdu_mac_data));
 }
 
 /* ACCESS-ASSIGN PDU contents for frame 1 to 17 */
