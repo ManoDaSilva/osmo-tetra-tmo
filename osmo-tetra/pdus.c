@@ -74,7 +74,7 @@ void sysinfo_pdu(uint16_t hn)
 	bitvec_set_uint(&bv, 7, 3);	// Duplex Spacing (Table 2 on ETSI TS 100 392-15): outside the standards
 	bitvec_set_bit(&bv, 0);		// Normal operation
 	bitvec_set_uint(&bv, 0, 2);	// Number of CSCH: none
-	bitvec_set_uint(&bv, 1, 3);	// MS_TXPWR_MAX_CELL: 15 dBm
+	bitvec_set_uint(&bv, 7, 3);	// MS_TXPWR_MAX_CELL
 	bitvec_set_uint(&bv, 0, 4);	// RXLEV_ACCESS_MIN: -125dBm
 	bitvec_set_uint(&bv, 0, 4);	// ACCESS_PARAMETER: -53 dBm
 	bitvec_set_uint(&bv, 0, 4);	// RADIO_DOWNLINK_TIMEOUT: Disable
