@@ -277,8 +277,7 @@ void build_scdb(uint8_t *buf, const uint8_t fn)
 int main(int argc, char **argv)
 {
 	uint8_t burst[BLEN];
-	uint8_t *bp;
-	bp = burst;
+	uint8_t *bp = burst;
 
 	uint8_t cur_tn = 0; // timeslot
 	uint8_t cur_fn = 1; // frame
