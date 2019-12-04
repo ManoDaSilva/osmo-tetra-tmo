@@ -320,7 +320,7 @@ int main(int argc, char **argv)
 	uint8_t *bp = burst;
 
 	uint8_t payload[432*2];
-	int16_t r = 0;
+	int16_t r = 1;
 
 	uint8_t cur_tn = 0; // timeslot
 	uint8_t cur_fn = 1; // frame
@@ -339,7 +339,7 @@ int main(int argc, char **argv)
 		//printf("%02u/%02u/%02u Hyperframe %05u\n", cur_mn, cur_fn, cur_tn, cur_hn);
 		/* GENERATE THE BURST HERE */
 		//printf("SCDB BURST\n");
-		if (r >= 0 && cur_tn == 2 && cur_fn != 18)
+		if (r > 0 && cur_tn == 2 && cur_fn != 18)
 		{
 			r = fread(payload, sizeof(int16_t), 432, fvp);
 
