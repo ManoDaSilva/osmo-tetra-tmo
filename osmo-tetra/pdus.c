@@ -39,7 +39,7 @@ void sync_pdu(uint16_t cc, uint8_t mn, uint8_t fn, uint8_t tn, uint8_t mcc, uint
 	bv.data_len = sizeof(pdu_sync);
 
 	// According to Table 21.73: SYNC PDU Contents
-	bitvec_set_uint(&bv, 0, 4);	// System Code: ETS 300 392-2 ed. 1
+	bitvec_set_uint(&bv, 2, 4);	// System Code: ETS 300 392-2 ed. 1
 	bitvec_set_uint(&bv, cc, 6);	// Colour Code: Predefined Scrambling
 	bitvec_set_uint(&bv, tn, 2);	// Timeslot number
 	bitvec_set_uint(&bv, fn, 5);	// Frame number
@@ -52,9 +52,9 @@ void sync_pdu(uint16_t cc, uint8_t mn, uint8_t fn, uint8_t tn, uint8_t mcc, uint
 	// As defined in Table 18.4.2.1: D-MLE-SYNC
 	bitvec_set_uint(&bv, mcc, 10);	// MCC
 	bitvec_set_uint(&bv, mnc, 14);	// MNC
-	bitvec_set_uint(&bv, 0, 2);	// Neighbor cell broadcast: not supported
+	bitvec_set_uint(&bv, 2, 2);	// Neighbor cell broadcast: not supported
 	bitvec_set_uint(&bv, 0, 2);	// Cell service level: unknown
-	bitvec_set_bit(&bv, 0);		// Late entry information
+	bitvec_set_bit(&bv, 1);		// Late entry information
 	//printf("SYNC PDU: %s\n", osmo_hexdump(pdu_sync, sizeof(pdu_sync)));
 }
 
@@ -74,21 +74,28 @@ void sysinfo_pdu(uint16_t hn)
 	bitvec_set_uint(&bv, 7, 3);	// Duplex Spacing (Table 2 on ETSI TS 100 392-15): outside the standards
 	bitvec_set_bit(&bv, 0);		// Normal operation
 	bitvec_set_uint(&bv, 0, 2);	// Number of CSCH: none
-	bitvec_set_uint(&bv, 7, 3);	// MS_TXPWR_MAX_CELL
-	bitvec_set_uint(&bv, 0, 4);	// RXLEV_ACCESS_MIN: -125dBm
-	bitvec_set_uint(&bv, 0, 4);	// ACCESS_PARAMETER: -53 dBm
-	bitvec_set_uint(&bv, 0, 4);	// RADIO_DOWNLINK_TIMEOUT: Disable
+	bitvec_set_uint(&bv, 5, 3);	// MS_TXPWR_MAX_CELL
+	bitvec_set_uint(&bv, 4, 4);	// RXLEV_ACCESS_MIN: -125dBm
+	bitvec_set_uint(&bv, 9, 4);	// ACCESS_PARAMETER: -53 dBm
+	bitvec_set_uint(&bv, 4, 4);	// RADIO_DOWNLINK_TIMEOUT: Disable
 	bitvec_set_bit(&bv, 0);		// Hyperframe number follows
 	bitvec_set_uint(&bv, hn, 16);	// Hyperframe number
-	bitvec_set_uint(&bv, 0, 2);	// Optional field: Even multiframe
-	bitvec_set_uint(&bv, 0, 20);	// TS_COMMON_FRAMES for even mframe
+	bitvec_set_uint(&bv, 2, 2);	// Optional field: Even multiframe
+
+	bitvec_set_uint(&bv, 15, 4);	// IMM: Immediate Access Allowed
+	bitvec_set_uint(&bv, 4, 4);	// WT: Response within 4 downlink opportunities
+	bitvec_set_uint(&bv, 3, 4);	// Number of random accesses
+	bitvec_set_bit(&bv, 0);		// Frame length factor
+	bitvec_set_uint(&bv, 0, 4);	// Timeslot pointer
+	bitvec_set_uint(&bv, 0, 3);	// Minimum priority
+
 	// TM-SDU (42 bit), Section 18.4.2.2, Table 18.15
-	bitvec_set_uint(&bv, 0, 14);	// Location Area (18.5.9)
+	bitvec_set_uint(&bv, 1112, 14);	// Location Area (18.5.9)
 	bitvec_set_uint(&bv, 0xFFFF, 16);	// Subscriber Class (18.5.22)
 	// BS service details (12 bits)
-	/*
-	bitvec_set_bit(&bv, 1);	        // Registration mandatory on this cell
-	bitvec_set_bit(&bv, 1);	        // De-registration mandatory on this cell
+
+	bitvec_set_bit(&bv, 0);	        // Registration mandatory on this cell
+	bitvec_set_bit(&bv, 0);	        // De-registration mandatory on this cell
 	bitvec_set_bit(&bv, 0);	        // Priority cell
 	bitvec_set_bit(&bv, 1);	        // Minimum mode service
 	bitvec_set_bit(&bv, 0);	        // Migration
@@ -99,8 +106,8 @@ void sysinfo_pdu(uint16_t hn)
 	bitvec_set_bit(&bv, 1);	        // SNDCP service
 	bitvec_set_bit(&bv, 0);	        // Air interface encryption service
 	bitvec_set_bit(&bv, 1);	        // Advanced link supported
-	*/
-	bitvec_set_uint(&bv, 0xd75, 12);	// same as above
+
+	//bitvec_set_uint(&bv, 0xd75, 12);	// same as above
 	//printf("SYSINFO PDU: %s\n", osmo_hexdump(pdu_sysinfo, sizeof(pdu_sysinfo)));
 }
 
