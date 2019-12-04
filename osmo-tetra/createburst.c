@@ -312,22 +312,22 @@ void build_scdb(uint8_t *buf, const uint8_t fn)
 
 int main(int argc, char **argv)
 {
+	FILE *fvp = fopen("./voice.payload", "rb");
+	if (fvp == NULL) {
+		printf("Unable to open voice.payload\n");
+		exit(1);
+	}
+
 	uint8_t burst[BLEN];
 	uint8_t *bp = burst;
 
-	uint8_t payload[432];
+	uint8_t payload[432*2];
 	int16_t r = 0;
 
 	uint8_t cur_tn = 0; // timeslot
 	uint8_t cur_fn = 1; // frame
 	uint8_t cur_mn = 1; // multiframe
 	uint16_t cur_hn = 1; // hyperframe
-
-	FILE *fvp = fopen("./voice.payload", "rb");
-	if (fvp == NULL) {
-		printf("Unable to open voice.payload\n");
-		exit(1);
-	}
 
 	tetra_rm3014_init();
 	sysinfo_pdu(cur_hn);
@@ -346,7 +346,7 @@ int main(int argc, char **argv)
 			r = fread(payload, sizeof(int16_t), 432, fvp);
 
 			for (uint16_t i = 0; i < r; i++)
-				payload[i] = (payload[i] & 0x8000) >> 15;
+				payload[i] = (*(int16_t *)(payload + (i * 2)) >> 15) & 0x01;
 
 			// fill partial frame
 			if (r < 432)
