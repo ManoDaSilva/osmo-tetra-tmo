@@ -47,13 +47,15 @@
 #define BLEN 510 // burst length
 
 /* Network info */
-#define CC      1
+#define CC      0x29
 #define MCC     206
 #define MNC     1000
 
 #define swap16(x) ((x)<<8)|((x)>>8)
 
 #define verbose 1
+
+uint8_t pdu_sysinfo_entropia[] = {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,1,0,0,1,1,0,0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,1,0,1,0,0,0,1,0,1,1,0,0,1,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,0,1,0,1};
 
 /* incoming TP-SAP UNITDATA.ind  from PHY into lower MAC */
 void tp_sap_udata_ind(enum tp_sap_data_type type, const uint8_t *bits, unsigned int len, void *priv)
@@ -120,8 +122,9 @@ void build_ncdb(uint8_t *buf)
 	cur = sb2_type2;
 
 	// Use pdu_sysinfo from pdus.c
-	cur += osmo_pbit2ubit(sb2_type2, pdu_sysinfo, 124);
-
+	//cur += osmo_pbit2ubit(sb2_type2, pdu_sysinfo, 124);
+	memcpy(sb2_type2,pdu_sysinfo_entropia,124);
+	cur +=124;
 	// Run it through CRC16-CCITT
 	crc = ~crc16_ccitt_bits(sb2_type2, 124);
 	crc = swap16(crc);
@@ -129,6 +132,7 @@ void build_ncdb(uint8_t *buf)
 
 	// Append 4 tail bits: type-2 bits
 	cur += 4;
+
 
 	// Run rate 2/3 RCPC code: type-3 bits
 	{
@@ -226,7 +230,9 @@ void build_scdb(uint8_t *buf, const uint8_t fn)
 	cur = si_type2;
 
 	/* Use pdu_sysinfo from pdus.c */
-	cur += osmo_pbit2ubit(si_type2, pdu_sysinfo, 124);
+	//cur += osmo_pbit2ubit(si_type2, pdu_sysinfo, 124);
+	memcpy(si_type2,pdu_sysinfo_entropia,124);
+	cur +=124;
 
 	/* Run it through CRC16-CCITT */
 	crc = ~crc16_ccitt_bits(si_type2, 124);
@@ -282,7 +288,7 @@ int main(int argc, char **argv)
 	uint8_t cur_tn = 0; // timeslot
 	uint8_t cur_fn = 1; // frame
 	uint8_t cur_mn = 1; // multiframe
-	uint16_t cur_hn = 1; // hyperframe
+	uint16_t cur_hn = 45569; // hyperframe
 
 	tetra_rm3014_init();
 	sysinfo_pdu(cur_hn);
@@ -295,15 +301,16 @@ int main(int argc, char **argv)
 
 		//printf("%02u/%02u/%02u Hyperframe %05u\n", cur_mn, cur_fn, cur_tn, cur_hn);
 		/* GENERATE THE BURST HERE */
-		//printf("SCDB BURST\n");
 		if (cur_tn < 3 || cur_fn == 18)
 		{
 			acc_pdu(0, 0);
+			//printf("SCDB BURST\n");
 			build_scdb(bp, cur_fn);
 		}
 		else
 		{
 			acc_pdu(9, 9);
+			//printf("--- NCDB BURST ---\n");
 			build_ncdb(bp);
 		}
 		//printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
@@ -329,7 +336,7 @@ int main(int argc, char **argv)
 		Add to output buffer
 		*/
 
-	} while (cur_hn < 2);
+	} while (cur_hn < 45570);
 
 	exit(0);
 }
