@@ -335,6 +335,22 @@ int main(int argc, char **argv)
 
 		//printf("%02u/%02u/%02u Hyperframe %05u\n", cur_mn, cur_fn, cur_tn, cur_hn);
 		/* GENERATE THE BURST HERE */
+		//printf("SCDB BURST\n");
+		if (r >= 0 && cur_tn == 2 && cur_fn != 18)
+		{
+			r = fread(payload, sizeof(int16_t), 432, fvp);
+
+			for (uint16_t i = 0; i < r; i++)
+				payload[i] = (*(int16_t *)(payload + (i * 2)) >> 15) & 0x01;
+
+			// fill partial frame
+			if (r < 432)
+				for (uint16_t i = r; i < 432; i++)
+					payload[i] = 0;
+
+			build_tch_vieuxfer(bp, payload);
+		}
+		else
 		if (cur_tn < 3 || cur_fn == 18)
 		{
 			acc_pdu(0, 0);
