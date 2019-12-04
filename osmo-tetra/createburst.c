@@ -122,9 +122,9 @@ void build_ncdb(uint8_t *buf)
 	cur = sb2_type2;
 
 	// Use pdu_sysinfo from pdus.c
-	//cur += osmo_pbit2ubit(sb2_type2, pdu_sysinfo, 124);
-	memcpy(sb2_type2,pdu_sysinfo_entropia,124);
-	cur +=124;
+	cur += osmo_pbit2ubit(sb2_type2, pdu_sysinfo, 124);
+	//memcpy(sb2_type2,pdu_sysinfo_entropia,124);
+	//cur +=124;
 	// Run it through CRC16-CCITT
 	crc = ~crc16_ccitt_bits(sb2_type2, 124);
 	crc = swap16(crc);
@@ -230,9 +230,9 @@ void build_scdb(uint8_t *buf, const uint8_t fn)
 	cur = si_type2;
 
 	/* Use pdu_sysinfo from pdus.c */
-	//cur += osmo_pbit2ubit(si_type2, pdu_sysinfo, 124);
-	memcpy(si_type2,pdu_sysinfo_entropia,124);
-	cur +=124;
+	cur += osmo_pbit2ubit(si_type2, pdu_sysinfo, 124);
+	//memcpy(si_type2,pdu_sysinfo_entropia,124);
+	//cur +=124;
 
 	/* Run it through CRC16-CCITT */
 	crc = ~crc16_ccitt_bits(si_type2, 124);
