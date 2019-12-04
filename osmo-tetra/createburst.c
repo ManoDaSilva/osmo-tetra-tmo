@@ -339,7 +339,7 @@ int main(int argc, char **argv)
 		//printf("%02u/%02u/%02u Hyperframe %05u\n", cur_mn, cur_fn, cur_tn, cur_hn);
 		/* GENERATE THE BURST HERE */
 		//printf("SCDB BURST\n");
-		if (cur_tn == 2 && r >= 0)
+		if (r >= 0 && cur_tn == 2 && cur_fn != 18)
 		{
 			r = fread(payload, sizeof(int16_t), 432, fvp);
 
