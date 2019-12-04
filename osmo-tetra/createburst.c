@@ -65,8 +65,6 @@ void build_tch_vieuxfer(uint8_t *buf, uint8_t *payload)
 	uint8_t type5[432];
 
 	uint8_t bb_type5[30];
-	uint16_t crc;
-	uint8_t *cur;
 	uint32_t bb_rm3014, bb_rm3014_be;
 
 	uint32_t scramb_init = tetra_scramb_get_init(MCC, MNC, CC);
