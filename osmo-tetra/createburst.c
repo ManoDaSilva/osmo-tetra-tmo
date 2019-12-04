@@ -75,7 +75,7 @@ void build_tch_vieuxfer(uint8_t *buf, uint8_t *payload)
 
 	// Run scrambling (all-zero): type-5 bits
 	tetra_scramb_bits(scramb_init, type5, 432);
-	//printf("Scrambled block bits (TCH/7,2): %s\n", osmo_ubit_dump(type5, 432));
+	//printf("Scrambled block bits (TCH ?): %s\n", osmo_ubit_dump(type5, 432));
 
 	// Use pdu_acc_ass from pdus.c
 	uint8_t *bb_type1 = (uint8_t *)pdu_acc_ass; // ACCESS-ASSIGN
@@ -93,7 +93,7 @@ void build_tch_vieuxfer(uint8_t *buf, uint8_t *payload)
 	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
 
 	// Finally, hand it into the physical layer
-	build_norm_c_d_burst(buf, type5, bb_type5, type5 + 216, 0);
+	build_norm_c_d_burst(buf, type5, bb_type5, type5 + 216, 1);
 }
 
 /* Build a full 'Normal continuous downlink burst'
