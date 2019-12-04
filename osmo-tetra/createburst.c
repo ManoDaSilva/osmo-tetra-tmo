@@ -62,6 +62,40 @@ void tp_sap_udata_ind(enum tp_sap_data_type type, const uint8_t *bits, unsigned 
 {
 }
 
+void build_tch_vieuxfer(uint8_t *buf, uint8_t *payload)
+{
+	uint8_t type5[432];
+
+	uint8_t bb_type5[30];
+	uint32_t bb_rm3014, bb_rm3014_be;
+
+	uint32_t scramb_init = tetra_scramb_get_init(MCC, MNC, CC);
+
+	memcpy(type5, payload, 432);
+
+	// Run scrambling (all-zero): type-5 bits
+	tetra_scramb_bits(scramb_init, type5, 432);
+	//printf("Scrambled block bits (TCH/7,2): %s\n", osmo_ubit_dump(type5, 432));
+
+	// Use pdu_acc_ass from pdus.c
+	uint8_t *bb_type1 = (uint8_t *)pdu_acc_ass; // ACCESS-ASSIGN
+	// Run it through (30,14) RM code: type-2=3=4 bits
+	bb_rm3014 = tetra_rm3014_compute(*(bb_type1) << 8 | *(bb_type1 + 1));
+	// convert to big endian
+	bb_rm3014_be = htonl(bb_rm3014);
+	// shift two bits left as it is only a 30 bit value
+	bb_rm3014_be <<= 2;
+	osmo_pbit2ubit(bb_type5, (uint8_t *) &bb_rm3014_be, 30);
+
+	// Run scrambling (all-zero): type-5 bits
+	tetra_scramb_bits(scramb_init, bb_type5, 30);
+
+	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
+
+	// Finally, hand it into the physical layer
+	build_norm_c_d_burst(buf, type5, bb_type5, type5 + 216, 0);
+}
+
 /* Build a full 'Normal continuous downlink burst'
  * from MAC-DATA PDU in SCH/HD and SYSINFO PDU in BNCH */
 void build_ncdb(uint8_t *buf)
