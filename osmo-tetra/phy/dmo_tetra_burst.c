@@ -1,5 +1,7 @@
-/* Implementation of TETRA Physical Layer, i.e. what is _below_
+/* Implementation of TETRA DMO Physical Layer, i.e. what is _below_
  * CRC, FEC, Interleaving and Scrambling */
+
+/* As Per ETSI EN 300 396-2 V1.4.1*/
 
 /* (C) 2011 by Harald Welte <laforge@gnumonks.org>
  * All Rights Reserved
@@ -183,7 +185,7 @@ int build_dm_sync_burst(uint8_t *buf, const uint8_t *sb, const uint8_t *bkn)
 	uint8_t *hl;
 
 	/* Normal Training Sequence: q11 to q22 */
-	memcpy(cur, I_bits+10, 12);
+	memcpy(cur, I_bits, 12);
 	cur += 12;
 
 	/* Phase adjustment bits: hc1 to hc2 */
@@ -216,7 +218,7 @@ int build_dm_sync_burst(uint8_t *buf, const uint8_t *sb, const uint8_t *bkn)
 	return cur - buf;
 }
 
-/* 9.4.3.2.3 Direct Mode Synchronization Burst */
+/* 9.4.3.2.1 Direct Mode Normal Burst */
 int build_dm_norm_burst(uint8_t *buf, const uint8_t *bkn1, const uint8_t *bkn2, int two_log_chan)
 {
 	uint8_t *cur = buf;
@@ -254,6 +256,22 @@ int build_dm_norm_burst(uint8_t *buf, const uint8_t *bkn1, const uint8_t *bkn2, 
 
 	/* put in the phase adjustment bits */
 	put_phase_adj_bits(buf, HK, hk);
+
+	return cur - buf;
+}
+
+/* 9.4.4 DM Device Multiple Slot Transmission */
+int add_guard_bits(uint8_t *buf, int long_short)
+{
+	uint8_t *cur = buf;
+	if (long_short){
+		memcpy(cur, g_bits, 34);
+		cur += 34;
+	}
+	else{
+		memcpy(cur, g_bits, 6);
+		cur += 6;
+	}
 
 	return cur - buf;
 }

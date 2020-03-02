@@ -167,7 +167,7 @@ void build_dnb(uint8_t *buf)
 	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
 
 	// Finally, hand it into the physical layer
-	build_norm_c_d_burst(buf, sb1_type5, bb_type5, sb2_type5, 1);
+	build_dm_norm_burst(buf, sb1_type5, sb2_type5, 1);
 
 	//printf("Normal continuous downlink burst (NCDB): %s\n", osmo_ubit_dump(buf, BLEN));
 }
@@ -180,15 +180,14 @@ void build_dsb(uint8_t *buf, const uint8_t fn)
 	uint8_t sb_master[80*4];
 	uint8_t sb_type3[120];
 	uint8_t sb_type4[120];
-	uint8_t sb_type5[120];
+	uint8_t sb_type5[120]={1,1,0,1,1,1,1,1,1,1,0,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,0,1,1,0,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,0,1,0,1,0,1,1,1,1,1,0,1,1,1,1,0,0,0,0,1,0,1,1,1,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,0,1,1,0,0,1,1,1,0,1,1};
 
-	uint8_t si_type2[144];
-	uint8_t si_master[216*4];
-	uint8_t si_type3[216];
-	uint8_t si_type4[216];
-	uint8_t si_type5[216];
+	uint8_t bk_type2[144];
+	uint8_t bk_master[216*4];
+	uint8_t bk_type3[216];
+	uint8_t bk_type4[216];
+	uint8_t bk_type5[216]={1,1,0,1,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,1,0,0,0,0,1,0,1,0,1,1,1,1,0,1,0,1,0,0,0,1,0,1,0,1,0,0,0,0,1,0,1,0,0,1,0,0,1,0,0,0,0,0,0,1,0,1,0,1,0,1,0,0,1,0,0,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,0,1,1,0,0,0,0,1,0,0,0,0,0,1,0,1,1,0,1,0,1,0,1,0,0,0,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,0,0,1,1,0,0,1,0,0,0,1,0,1,0,1,0,0,1,0,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,0,1,1,0,0,1,1,1,0,1,1,0,1,0,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1};
 
-	uint8_t bb_type5[30];
 	uint16_t crc;
 	uint8_t *cur;
 	uint32_t bb_rm3014, bb_rm3014_be;
@@ -220,22 +219,23 @@ void build_dsb(uint8_t *buf, const uint8_t fn)
 	/* Run (120,11) block interleaving: type-4 bits */
 	block_interleave(120, 11, sb_type3, sb_type4);
 
-	memcpy(sb_type5, sb_type4, 120);
-
+	//UNCOMMENT HERE FOR HOMEMADE PDU
+	//memcpy(sb_type5, sb_type4, 120);
 	/* Run scrambling (all-zero): type-5 bits */
-	tetra_scramb_bits(SCRAMB_INIT, sb_type5, 120);
+	//tetra_scramb_bits(SCRAMB_INIT, sb_type5, 120);
+
 	//printf("Scrambled synchronization block 1 bits (BSCH): %s\n", osmo_ubit_dump(sb_type5, 120));
 
-	memset(si_type2, 0, sizeof(si_type2));
-	cur = si_type2;
+	memset(bk_type2, 0, sizeof(bk_type2));
+	cur = bk_type2;
 
 	/* Use pdu_sysinfo from pdus.c */
-	cur += osmo_pbit2ubit(si_type2, pdu_sysinfo, 124);
+	cur += osmo_pbit2ubit(bk_type2, pdu_sysinfo, 124);
 	//memcpy(si_type2,pdu_sysinfo_entropia,124);
 	//cur +=124;
 
 	/* Run it through CRC16-CCITT */
-	crc = ~crc16_ccitt_bits(si_type2, 124);
+	crc = ~crc16_ccitt_bits(bk_type2, 124);
 	crc = swap16(crc);
 	cur += osmo_pbit2ubit(cur, (uint8_t *) &crc, 16);
 
@@ -246,38 +246,26 @@ void build_dsb(uint8_t *buf, const uint8_t fn)
 	{
 		struct conv_enc_state *ces = calloc(1, sizeof(*ces));
 		conv_enc_init(ces);
-		conv_enc_input(ces, si_type2, 144, si_master);
-		get_punctured_rate(TETRA_RCPC_PUNCT_2_3, si_master, 216, si_type3);
+		conv_enc_input(ces, bk_type2, 144, bk_master);
+		get_punctured_rate(TETRA_RCPC_PUNCT_2_3, bk_master, 216, bk_type3);
 		free(ces);
 	}
 
 	/* Run (216,101) block interleaving: type-4 bits */
-	block_interleave(216, 101, si_type3, si_type4);
+	block_interleave(216, 101, bk_type3, bk_type4);
 
-	memcpy(si_type5, si_type4, 216);
-
+	//UNCOMMENT HERE FOR HOMEMADE PDU
+	//memcpy(bk_type5, bk_type4, 216);
 	/* Run scrambling (all-zero): type-5 bits */
-	tetra_scramb_bits(scramb_init, si_type5, 216);
-	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(si_type5, 216));
+	//tetra_scramb_bits(scramb_init, bk_type5, 216);
 
-	/* Use pdu_acc_ass/pdu_acc_ass_18 from pdus.c */
-	uint8_t *bb_type1 = (uint8_t *)(fn < 18 ? pdu_acc_ass : pdu_acc_ass_18); // ACCESS-ASSIGN
-	/* Run it through (30,14) RM code: type-2=3=4 bits */
-	bb_rm3014 = tetra_rm3014_compute(*(bb_type1) << 8 | *(bb_type1 + 1));
-	/* convert to big endian */
-	bb_rm3014_be = htonl(bb_rm3014);
-	/* shift two bits left as it is only a 30 bit value */
-	bb_rm3014_be <<= 2;
-	osmo_pbit2ubit(bb_type5, (uint8_t *) &bb_rm3014_be, 30);
 
-	/* Run scrambling (all-zero): type-5 bits */
-	tetra_scramb_bits(scramb_init, bb_type5, 30);
-	//printf("Scrambled broadcast bits (AACH): %s\n", osmo_ubit_dump(bb_type5, 30));
+
+	//printf("Scrambled block 2 bits (BNCH): %s\n", osmo_ubit_dump(bk_type5, 216));
 
 	/* Finally, hand it into the physical layer */
-	build_sync_c_d_burst(buf, sb_type5, bb_type5, si_type5);
+	build_dm_sync_burst(buf, sb_type5, bk_type5);
 
-	//printf("Synchronization continuous downlink burst (SCDB): %s\n", osmo_ubit_dump(buf, 255*2));
 }
 
 int main(int argc, char **argv)
@@ -295,48 +283,14 @@ int main(int argc, char **argv)
 	mac_data_pdu();
 	acc_pdu_18();
 
-	do {
-		/* Create pdu_sync from what we need */
-		sync_pdu(CC, cur_mn, cur_fn, cur_tn, MCC, MNC);
+	add_guard_bits(bp,1);
+	bp +=34;
+	build_dsb(bp, cur_fn);
+	bp +=470;
+	add_guard_bits(bp,0);
 
-		//printf("%02u/%02u/%02u Hyperframe %05u\n", cur_mn, cur_fn, cur_tn, cur_hn);
-		/* GENERATE THE BURST HERE */
-		if (cur_tn < 3 || cur_fn == 18)
-		{
-			acc_pdu(0, 0);
-			//printf("SCDB BURST\n");
-			build_scdb(bp, cur_fn);
-		}
-		else
-		{
-			acc_pdu(9, 9);
-			//printf("--- NCDB BURST ---\n");
-			build_ncdb(bp);
-		}
-		//printf("OUTPUT: %s\n", osmo_ubit_dump(burst, BLEN));
-		printf("%s", osmo_ubit_dump(burst, BLEN));
+	printf("%s", osmo_ubit_dump(burst, BLEN));
 
-		if (++cur_tn > 3) {
-			cur_tn = 0;
-			if (++cur_fn > 18) {
-				cur_fn = 1;
-				if (++cur_mn > 60) {
-					cur_mn = 1;
-					if (!++cur_hn) cur_hn = 1; // catch overflow
-					sysinfo_pdu(cur_hn);
-				}
-			}
-		}
-
-		/*
-		If FN = 18 and (MN+TN)*mod4=1 ==> BNCH (gen OK)
-		If FN = 18 and (MN+TN)*mod4=3 ==> BSCH (gen OK)
-		Burst caracteristic: TN, FN, MN, type(CB, LB, LDB, NUB, NCDB, SCDB, NDDB, SDDB), contents
-		IF SCDB ==> BSCH
-		Add to output buffer
-		*/
-
-	} while (cur_hn < 45570);
 
 	exit(0);
 }
