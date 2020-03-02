@@ -1,14 +1,9 @@
 #!/bin/bash
 
-export TETRA_HACK_PORT=7379
-#export TETRA_HACK_IP=127.0.0.1 #you can send to another host too
-export TETRA_HACK_RXID=$1
 UDP_PORT=$((42000+$1))
 
 ulimit -c unlimited
 
-#tetra-rx args: -a turns on pseudo-afc , -i uses an internal float_t_bits
-#if you have problems with the receiver, then try to remove -a
+#tetra-rx args:  -i uses an internal float_t_bits
 
-socat UDP-RECV:${UDP_PORT} STDOUT | ./tetra-rx /dev/stdin 
-
+socat UDP-RECV:${UDP_PORT} STDOUT | ./tetra-rx -i /dev/stdin
