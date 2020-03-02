@@ -47,7 +47,7 @@
 #define BLEN 510 // burst length
 
 /* Network info */
-#define CC      0x29
+#define CC      0x0
 #define MCC     901
 #define MNC     16383
 
@@ -86,8 +86,8 @@ void build_dnb(uint8_t *buf)
 	memset(sb1_type2, 0, sizeof(sb1_type2));
 	cur = sb1_type2;
 
-	// Use MAC-DATA PDU from pdus.c
-	cur += osmo_pbit2ubit(sb1_type2, pdu_mac_data, 124);
+	// Use MAC-DATA PDU from pdus.c FIXME
+	cur += osmo_pbit2ubit(sb1_type2, dmac_data_pdu, 124);
 	//printf("MAC-DATA PDU: %s\n", osmo_ubit_dump(sb1_type2, 124));
 
 	// Run it through CRC16-CCITT
@@ -120,8 +120,8 @@ void build_dnb(uint8_t *buf)
 	memset(sb2_type2, 0, sizeof(sb2_type2));
 	cur = sb2_type2;
 
-	// Use pdu_sysinfo from pdus.c
-	cur += osmo_pbit2ubit(sb2_type2, pdu_sysinfo, 124);
+	// Use pdu_sysinfo from pdus.c FIXME!
+	cur += osmo_pbit2ubit(sb2_type2, dmac_data_pdu, 124);
 	//memcpy(sb2_type2,pdu_sysinfo_entropia,124);
 	//cur +=124;
 	// Run it through CRC16-CCITT
@@ -161,15 +161,14 @@ void build_dnb(uint8_t *buf)
 
 /* Build a full 'Direct Mode Synchronisation Burst'
 */
-void build_dsb(uint8_t *buf, const uint8_t fn)
+void build_dsb(uint8_t *buf)
 {
 	uint8_t sb_type2[80];
 	uint8_t sb_master[80*4];
 	uint8_t sb_type3[120];
 	uint8_t sb_type4[120];
-	//For now we're using a pre-made PDU. Supposed to be implemented in dmo_pdus once we get some time...
-	uint8_t sb_type5[120]={1,1,0,1,1,1,1,1,1,1,0,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,0,1,1,0,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,0,1,0,1,0,1,1,1,1,1,0,1,1,1,1,0,0,0,0,1,0,1,1,1,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,0,1,1,0,0,1,1,1,0,1,1};
-
+	uint8_t sb_type5[120];
+	
 	uint8_t sb2_type2[144];
 	uint8_t sb2_master[216*4];
 	uint8_t sb2_type3[216];
@@ -178,16 +177,15 @@ void build_dsb(uint8_t *buf, const uint8_t fn)
 
 	uint16_t crc;
 	uint8_t *cur;
-	uint32_t bb_rm3014, bb_rm3014_be;
 
 	uint32_t scramb_init = tetra_scramb_get_init(MCC, MNC, CC);
 
 	memset(sb_type2, 0, sizeof(sb_type2));
 	cur = sb_type2;
 
-	/* Use pdu_sync from pdus.c */
-	cur += osmo_pbit2ubit(sb_type2, pdu_sync, 60);
-
+	/* Use dmac_sync_pdu_schs from dmo_pdus.c */
+	cur += osmo_pbit2ubit(sb_type2, dmac_sync_pdu_schs, 60);
+	//printf("Scrambled synchronization block 1 bits (BSCH): %s\n", osmo_ubit_dump(sb_type2, 60));
 	crc = ~crc16_ccitt_bits(sb_type2, 60);
 	crc = swap16(crc);
 	cur += osmo_pbit2ubit(cur, (uint8_t *) &crc, 16);
@@ -207,18 +205,18 @@ void build_dsb(uint8_t *buf, const uint8_t fn)
 	/* Run (120,11) block interleaving: type-4 bits */
 	block_interleave(120, 11, sb_type3, sb_type4);
 
-	//UNCOMMENT HERE FOR HOMEMADE PDU
-	//memcpy(sb_type5, sb_type4, 120);
+	//UNCOMMENT TO ENABLE HOMEMADE PDU
+	memcpy(sb_type5, sb_type4, 120);
 	/* Run scrambling (all-zero): type-5 bits */
-	//tetra_scramb_bits(SCRAMB_INIT, sb_type5, 120);
+	tetra_scramb_bits(SCRAMB_INIT, sb_type5, 120);
 
 	//printf("Scrambled synchronization block 1 bits (BSCH): %s\n", osmo_ubit_dump(sb_type5, 120));
 
 	memset(sb2_type2, 0, sizeof(sb2_type2));
 	cur = sb2_type2;
 
-	/* Use pdu_sysinfo from pdus.c */
-	cur += osmo_pbit2ubit(sb2_type2, pdu_sysinfo, 124);
+	/* Use pdu_sysinfo from pdus.c FIXMEPLZ*/
+	cur += osmo_pbit2ubit(sb2_type2, dmac_sync_pdu_schh, 124);
 	//memcpy(si_type2,pdu_sysinfo_entropia,124);
 	//cur +=124;
 
@@ -262,15 +260,15 @@ int main(int argc, char **argv)
 	uint8_t *bp = burst;
 
 	uint8_t cur_tn = 0; // timeslot
-	uint8_t cur_fn = 1; // frame
+	uint8_t cur_fn = 4; // frame
 	uint8_t cur_mn = 1; // multiframe
 
 	tetra_rm3014_init();
-	mac_data_pdu();
+	sync_schs_pdu(cur_fn, cur_tn);
 
 	add_guard_bits(bp,1);
 	bp +=34;
-	build_dsb(bp,1);
+	build_dsb(bp);
 	bp +=470;
 	add_guard_bits(bp,0);
 
