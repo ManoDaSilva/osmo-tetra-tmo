@@ -265,6 +265,7 @@ int main(int argc, char **argv)
 
 	tetra_rm3014_init();
 	sync_schs_pdu(cur_fn, cur_tn);
+	sync_schh_pdu(MCC, MNC);
 
 	add_guard_bits(bp,1);
 	bp +=34;

@@ -69,6 +69,6 @@ void sync_schh_pdu(uint8_t mcc, uint16_t mnc){
 	bitvec_set_uint(&bv, mcc, 10);//MNI MCC
 	bitvec_set_uint(&bv, mnc, 14);//MNI MNC
 	bitvec_set_uint(&bv, 0,5);//Message type
-
+	//printf("DMAC SYNC PDU (SCH/H) %s\n", osmo_hexdump(dmac_sync_pdu_schh, sizeof(dmac_sync_pdu_schh)));
 
 }

@@ -21,7 +21,7 @@ int build_dm_sync_burst(uint8_t *buf, const uint8_t *sb, const uint8_t *bkn);
 int build_dm_norm_burst(uint8_t *buf, const uint8_t *bkn1, const uint8_t *bkn2, int two_log_chan);
 
 /* 9.4.4 DM Device Multiple Slot Transmission */
-int add_guard_bits(uint8_t *buf,int short_long);
+int add_guard_bits(uint8_t *buf,int long_short);
 
 
 
