@@ -62,7 +62,7 @@ void tp_sap_udata_ind(enum tp_sap_data_type type, const uint8_t *bits, unsigned 
 {
 }
 
-void build_tch_vieuxfer(uint8_t *buf, uint8_t *payload)
+void build_tch_vieuxfer(uint8_t *buf, uint8_t *pdu, uint8_t *payload)
 {
 	uint8_t type5[432];
 
@@ -77,8 +77,7 @@ void build_tch_vieuxfer(uint8_t *buf, uint8_t *payload)
 	tetra_scramb_bits(scramb_init, type5, 432);
 	//printf("Scrambled block bits (TCH ?): %s\n", osmo_ubit_dump(type5, 432));
 
-	// Use pdu_acc_ass from pdus.c
-	uint8_t *bb_type1 = (uint8_t *)pdu_acc_ass; // ACCESS-ASSIGN
+	uint8_t *bb_type1 = (uint8_t *)pdu; // ACCESS-ASSIGN
 	// Run it through (30,14) RM code: type-2=3=4 bits
 	bb_rm3014 = tetra_rm3014_compute(*(bb_type1) << 8 | *(bb_type1 + 1));
 	// convert to big endian
@@ -314,6 +313,8 @@ void build_scdb(uint8_t *buf, const uint8_t fn)
 	//printf("Synchronization continuous downlink burst (SCDB): %s\n", osmo_ubit_dump(buf, 255*2));
 }
 
+extern void mac_resource_pdu(uint8_t *pdu, uint8_t pdu_len);
+
 int main(int argc, char **argv)
 {
 	uint8_t burst[BLEN];
@@ -351,7 +352,9 @@ int main(int argc, char **argv)
 				for (uint16_t i = r; i < 432; i++)
 					payload[i] = 0;
 
-			build_tch_vieuxfer(bp, payload);
+			uint8_t pdu[6]; // MAC-RESOURCE PDU (48 bits)
+			mac_resource_pdu(pdu, sizeof(pdu));
+			build_tch_vieuxfer(bp, pdu, payload);
 		}
 		else
 		if (cur_tn < 3 || cur_fn == 18)
