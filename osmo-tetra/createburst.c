@@ -317,11 +317,11 @@ extern void mac_resource_pdu(uint8_t *pdu, uint8_t pdu_len);
 
 int main(int argc, char **argv)
 {
-	FILE *fvp = fopen("./voice.payload", "rb");
+	/*FILE *fvp = fopen("./voice.payload", "rb");
 	if (fvp == NULL) {
 		printf("Unable to open voice.payload\n");
 		exit(1);
-	}
+	}*/
 
 	uint8_t burst[BLEN];
 	uint8_t *bp = burst;
@@ -346,7 +346,7 @@ int main(int argc, char **argv)
 		//printf("%02u/%02u/%02u Hyperframe %05u\n", cur_mn, cur_fn, cur_tn, cur_hn);
 		/* GENERATE THE BURST HERE */
 		//printf("SCDB BURST\n");
-		if (r > 0 && cur_tn == 2 && cur_fn != 18)
+		/*if (r > 0 && cur_tn == 2 && cur_fn != 18)
 		{
 			r = fread(payload, sizeof(int16_t), 432, fvp);
 
@@ -362,7 +362,7 @@ int main(int argc, char **argv)
 			mac_resource_pdu(pdu, sizeof(pdu));
 			build_tch_vieuxfer(bp, pdu, payload);
 		}
-		else
+		else*/
 		if (cur_tn < 3 || cur_fn == 18)
 		{
 			acc_pdu(0, 0);
@@ -371,7 +371,7 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			acc_pdu(9, 9);
+			acc_pdu(2, 4);
 			//printf("--- NCDB BURST ---\n");
 			build_ncdb(bp);
 		}
@@ -400,7 +400,7 @@ int main(int argc, char **argv)
 
 	} while (cur_hn < 45570);
 
-	fclose(fvp);
+	//fclose(fvp);
 
 	exit(0);
 }
