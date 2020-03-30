@@ -232,6 +232,8 @@ static void rx_aach(struct tetra_tmvsap_prim *tmvp, struct tetra_mac_state *tms)
 	macpdu_decode_access_assign(&aad, tmvp->oph.msg->l1h,
 				    tup->tdma_time.fn == 18 ? 1 : 0);
 
+	if ((aad.pres & TETRA_ACC_ASS_PRES_ACCESS1) || (aad.pres & TETRA_ACC_ASS_PRES_ACCESS2))
+		printf("HEADER: %u ", aad.hdr);
 	if (aad.pres & TETRA_ACC_ASS_PRES_ACCESS1)
 		dump_access(&aad.access[0], 1);
 	if (aad.pres & TETRA_ACC_ASS_PRES_ACCESS2)
